@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import {
   Wrench, LayoutDashboard, Receipt, Users, Boxes, DollarSign,
-  BarChart3, Megaphone, Settings, LogOut, Menu, X, ExternalLink,
+  BarChart3, Megaphone, Settings, LogOut, Menu, X, ExternalLink, BookOpen,
 } from "lucide-react";
 import { cerrarSesion } from "@/app/(auth)/acciones";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,7 @@ const ENLACES = [
   { href: "/admin/reportes", texto: "Reportes", Icono: BarChart3 },
   { href: "/admin/anunciantes", texto: "Anunciantes", Icono: Megaphone },
   { href: "/admin/configuracion", texto: "Configuración", Icono: Settings },
+  { href: "/admin/manual", texto: "Manual", Icono: BookOpen },
 ];
 
 export function AdminShell({
