@@ -1,0 +1,18 @@
+import puppeteer from "puppeteer-core";
+const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const BASE = "https://my-box-ten.vercel.app";
+const b = await puppeteer.launch({ executablePath: CHROME, headless: "new", args: ["--no-sandbox","--hide-scrollbars"] });
+const p = await b.newPage();
+await p.goto(`${BASE}/admin/login`, { waitUntil: "networkidle2" });
+await p.type('input[name="email"]', "admin@myborrowbox.com");
+await p.type('input[name="password"]', "Admin1234!");
+await Promise.all([p.waitForNavigation({waitUntil:"networkidle2"}).catch(()=>{}), p.click('button[type="submit"]')]);
+await new Promise(r=>setTimeout(r,2000));
+const url = p.url();
+const txt = await p.evaluate(()=>document.body.innerText.slice(0,200));
+const error = txt.includes("Application error") || txt.includes("server-side exception");
+console.log("URL final:", url);
+console.log("¿pantalla de error?:", error ? "SÍ ❌" : "NO ✅");
+console.log("primeras líneas:", txt.replace(/\n+/g," | ").slice(0,160));
+await p.screenshot({ path: "/tmp/shot-prod-admin.png" });
+await b.close();
