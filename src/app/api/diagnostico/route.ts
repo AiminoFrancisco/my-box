@@ -16,6 +16,9 @@ export async function GET() {
     "";
 
   return NextResponse.json({
+    marcador: "diag-v3",
+    commit: process.env.VERCEL_GIT_COMMIT_SHA ?? null,
+    entorno_vercel: process.env.VERCEL_ENV ?? null,
     NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL ?? null,
     tiene_publishable: !!process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
     tiene_anon: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
