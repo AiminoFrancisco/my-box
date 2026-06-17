@@ -1,0 +1,15 @@
+import puppeteer from "puppeteer-core";
+const CHROME = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome";
+const BASE = "http://localhost:3000";
+const b = await puppeteer.launch({ executablePath: CHROME, headless: "new", args: ["--no-sandbox","--hide-scrollbars"] });
+const p = await b.newPage();
+await p.setViewport({ width: 1100, height: 1600, deviceScaleFactor: 2 });
+await p.goto(`${BASE}/admin/login`, { waitUntil: "networkidle2" });
+await p.type('input[name="email"]', "admin@myborrowbox.com");
+await p.type('input[name="password"]', "Admin1234!");
+await Promise.all([p.waitForNavigation({waitUntil:"networkidle2"}).catch(()=>{}), p.click('button[type="submit"]')]);
+await p.goto(`${BASE}/admin/manual`, { waitUntil: "networkidle2" });
+await new Promise(r=>setTimeout(r,800));
+await p.screenshot({ path: "/tmp/shot-manual.png" });
+console.log("ok");
+await b.close();
