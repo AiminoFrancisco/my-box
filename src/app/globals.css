@@ -1,0 +1,73 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+  Tokens de color como variables CSS (RGB sin coma para usar /<alpha-value>).
+  Modo claro por defecto; el modo oscuro queda preparado con .dark.
+*/
+:root {
+  --fondo: 246 248 251; /* #F6F8FB gris muy claro */
+  --superficie: 255 255 255; /* #FFFFFF */
+  --contenido: 11 42 74; /* #0B2A4A azul marino (texto) */
+  --tenue: 100 116 139; /* gris medio para texto secundario */
+  --borde: 226 232 240; /* gris claro de bordes */
+}
+
+.dark {
+  --fondo: 8 17 30;
+  --superficie: 15 28 48;
+  --contenido: 226 236 248;
+  --tenue: 148 163 184;
+  --borde: 30 48 76;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-fondo text-contenido antialiased;
+    font-feature-settings: "cv11", "ss01";
+    text-rendering: optimizeLegibility;
+  }
+
+  /* Respeta a quien prefiere menos movimiento */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.001ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer components {
+  /* Tarjeta glassmorphism reutilizable */
+  .tarjeta-glass {
+    @apply rounded-2xl border border-white/40 bg-white/70 shadow-glassmorph backdrop-blur-md;
+  }
+
+  /* Contenedor estándar de página */
+  .contenedor {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Texto con gradiente de marca */
+  .texto-gradiente {
+    @apply bg-gradiente-marca bg-clip-text text-transparent;
+  }
+}
+
+/* Fondo mesh gradient animado para el hero */
+.mesh-fondo {
+  background:
+    radial-gradient(at 20% 20%, rgba(43, 159, 230, 0.35) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, rgba(245, 166, 35, 0.18) 0px, transparent 50%),
+    radial-gradient(at 0% 80%, rgba(11, 42, 74, 0.45) 0px, transparent 50%),
+    radial-gradient(at 80% 80%, rgba(43, 159, 230, 0.25) 0px, transparent 50%);
+}
