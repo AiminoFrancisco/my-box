@@ -10,27 +10,8 @@ import { cerrarSesion } from "@/app/(auth)/acciones";
 import { BadgeEstado } from "@/components/ui/BadgeEstado";
 import { ESTADOS_USUARIO } from "@/lib/config";
 import { cn } from "@/lib/utils";
+import { useDic } from "@/lib/i18n/cliente";
 import type { EstadoUsuario } from "@/types/modelos";
-
-// Navegación completa (escritorio)
-const ENLACES = [
-  { href: "/panel", texto: "Inicio", Icono: LayoutDashboard },
-  { href: "/herramientas", texto: "Herramientas", Icono: Boxes },
-  { href: "/escanear", texto: "Escanear", Icono: ScanLine },
-  { href: "/mis-prestamos", texto: "Mis préstamos", Icono: Clock },
-  { href: "/bodega", texto: "Bodega", Icono: DoorOpen },
-  { href: "/membresia", texto: "Membresía", Icono: CreditCard },
-  { href: "/perfil", texto: "Perfil", Icono: User },
-];
-
-// Barra inferior (móvil) — 5 accesos, "Escanear" elevado al centro.
-const TABS = [
-  { href: "/panel", texto: "Inicio", Icono: LayoutDashboard },
-  { href: "/herramientas", texto: "Herram.", Icono: Boxes },
-  { href: "/escanear", texto: "Escanear", Icono: ScanLine, centro: true },
-  { href: "/mis-prestamos", texto: "Préstamos", Icono: Clock },
-  { href: "/perfil", texto: "Perfil", Icono: User },
-];
 
 export function MiembroShell({
   nombre,
@@ -43,8 +24,29 @@ export function MiembroShell({
   esAdmin: boolean;
   children: React.ReactNode;
 }) {
+  const dic = useDic();
   const pathname = usePathname();
   const meta = ESTADOS_USUARIO[estado];
+
+  // Navegación completa (escritorio)
+  const ENLACES = [
+    { href: "/panel", texto: dic.member.shell.nav.inicio, Icono: LayoutDashboard },
+    { href: "/herramientas", texto: dic.member.shell.nav.herramientas, Icono: Boxes },
+    { href: "/escanear", texto: dic.member.shell.nav.escanear, Icono: ScanLine },
+    { href: "/mis-prestamos", texto: dic.member.shell.nav.misPrestamos, Icono: Clock },
+    { href: "/bodega", texto: dic.member.shell.nav.bodega, Icono: DoorOpen },
+    { href: "/membresia", texto: dic.member.shell.nav.membresia, Icono: CreditCard },
+    { href: "/perfil", texto: dic.member.shell.nav.perfil, Icono: User },
+  ];
+
+  // Barra inferior (móvil) — 5 accesos, "Escanear" elevado al centro.
+  const TABS = [
+    { href: "/panel", texto: dic.member.shell.tabs.inicio, Icono: LayoutDashboard },
+    { href: "/herramientas", texto: dic.member.shell.tabs.herramientas, Icono: Boxes },
+    { href: "/escanear", texto: dic.member.shell.tabs.escanear, Icono: ScanLine, centro: true },
+    { href: "/mis-prestamos", texto: dic.member.shell.tabs.misPrestamos, Icono: Clock },
+    { href: "/perfil", texto: dic.member.shell.tabs.perfil, Icono: User },
+  ];
 
   return (
     <div className="min-h-screen bg-fondo pb-24 lg:pb-0">
@@ -80,15 +82,15 @@ export function MiembroShell({
           <div className="flex items-center gap-2.5">
             {esAdmin && (
               <Link href="/admin" className="hidden items-center gap-1 rounded-full bg-marca-marino px-3 py-1.5 text-xs font-semibold text-white sm:inline-flex">
-                <ShieldCheck className="h-3.5 w-3.5" /> Admin
+                <ShieldCheck className="h-3.5 w-3.5" /> {dic.member.shell.admin}
               </Link>
             )}
             {/* La etiqueta de estado lleva a la membresía (para pagar/ver estado) */}
             <Link href="/membresia" className="hidden sm:block">
-              <BadgeEstado color={meta.color as "exito" | "alerta" | "peligro"}>{meta.etiqueta}</BadgeEstado>
+              <BadgeEstado color={meta.color as "exito" | "alerta" | "peligro"}>{dic.common.estados.usuario[estado]}</BadgeEstado>
             </Link>
             <form action={cerrarSesion}>
-              <button className="rounded-full p-2 text-tenue hover:bg-fondo hover:text-peligro" title="Cerrar sesión" aria-label="Cerrar sesión">
+              <button className="rounded-full p-2 text-tenue hover:bg-fondo hover:text-peligro" title={dic.member.shell.cerrarSesion} aria-label={dic.member.shell.cerrarSesion}>
                 <LogOut className="h-5 w-5" />
               </button>
             </form>

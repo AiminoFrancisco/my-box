@@ -1,10 +1,12 @@
 import Link from "next/link";
 import { Wrench } from "lucide-react";
+import { obtenerDic } from "@/lib/i18n/servidor";
 
 // Layout oscuro para el acceso administrativo (separado del panel protegido).
 export const dynamic = "force-dynamic";
 
 export default function AdminAuthLayout({ children }: { children: React.ReactNode }) {
+  const dic = obtenerDic();
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-marca-marino px-4 py-10">
       <div className="mesh-fondo absolute inset-0 opacity-30" />
@@ -19,7 +21,7 @@ export default function AdminAuthLayout({ children }: { children: React.ReactNod
       <div className="relative w-full max-w-md">{children}</div>
 
       <Link href="/" className="relative mt-8 text-sm text-white/40 hover:text-white">
-        ← Volver al inicio
+        {dic.auth.layout.volverInicio}
       </Link>
     </div>
   );

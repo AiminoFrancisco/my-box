@@ -1,6 +1,9 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Sora } from "next/font/google";
 import "./globals.css";
+import { obtenerLocale } from "@/lib/i18n/servidor";
+import { obtenerDiccionario } from "@/lib/i18n/diccionario";
+import { ProveedorIdioma } from "@/lib/i18n/cliente";
 
 // Tipografías modernas: Sora para títulos, Inter para cuerpo/UI.
 const inter = Inter({
@@ -16,18 +19,19 @@ const sora = Sora({
   display: "swap",
 });
 
-export const metadata: Metadata = {
-  title: "My Borrow Box — Renta herramientas, no las compres",
-  description:
-    "Hazte miembro en Sahuarita, AZ. Escanea el QR, llévate la herramienta que necesitas y devuélvela en 72 horas. Deja de comprar herramientas que usas una sola vez.",
-  openGraph: {
-    title: "My Borrow Box",
-    description:
-      "Tu bodega de herramientas por membresía en Sahuarita, Arizona.",
-    type: "website",
-    locale: "es_MX",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const dic = obtenerDiccionario(obtenerLocale());
+  const m = dic.common.meta;
+  return {
+    title: m.title,
+    description: m.description,
+    openGraph: {
+      title: m.ogTitle,
+      description: m.ogDescription,
+      type: "website",
+    },
+  };
+}
 
 export const viewport: Viewport = {
   themeColor: "#0B2A4A",
@@ -40,9 +44,19 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const locale = obtenerLocale();
+  const dic = obtenerDiccionario(locale);
+
   return (
-    <html lang="es-MX" className={`${inter.variable} ${sora.variable}`}>
-      <body>{children}</body>
+    <html
+      lang={locale === "es" ? "es-MX" : "en-US"}
+      className={`${inter.variable} ${sora.variable}`}
+    >
+      <body>
+        <ProveedorIdioma locale={locale} dic={dic}>
+          {children}
+        </ProveedorIdioma>
+      </body>
     </html>
   );
 }

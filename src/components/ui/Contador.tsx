@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { animate, useInView } from "framer-motion";
+import { useLocale } from "@/lib/i18n/cliente";
 
 /**
  * Número que cuenta desde 0 hasta `valor` cuando entra en viewport.
@@ -17,6 +18,7 @@ export function Contador({
   sufijo?: string;
   duracion?: number;
 }) {
+  const locale = useLocale();
   const ref = useRef<HTMLSpanElement>(null);
   const enVista = useInView(ref, { once: true, margin: "-40px" });
   const [n, setN] = useState(0);
@@ -34,7 +36,7 @@ export function Contador({
   return (
     <span ref={ref}>
       {prefijo}
-      {n.toLocaleString("es-MX")}
+      {n.toLocaleString(locale === "es" ? "es-MX" : "en-US")}
       {sufijo}
     </span>
   );

@@ -3,8 +3,10 @@
 import { motion, type Variants } from "framer-motion";
 import { Wrench, Hammer, Ruler, Drill, PaintRoller, Plug, PackageOpen, ScanLine, ArrowRight } from "lucide-react";
 import { BotonLink } from "@/components/ui/Boton";
+import { useDic } from "@/lib/i18n/cliente";
 
-const TITULAR = "Deja de comprar herramientas que usas una sola vez.".split(" ");
+// Palabras que se resaltan con gradiente en el titular (EN y ES).
+const PALABRAS_RESALTADAS = new Set(["buy", "buying", "compras", "comprar"]);
 
 const contenedorTitular: Variants = {
   oculto: {},
@@ -26,6 +28,8 @@ const HERRAMIENTAS = [
 ];
 
 export function Hero() {
+  const dic = useDic();
+  const titular = dic.home.hero.titular.split(" ");
   return (
     <section className="relative flex min-h-screen items-center overflow-hidden pt-16">
       {/* Fondo mesh animado + viñeta */}
@@ -43,7 +47,7 @@ export function Hero() {
             transition={{ duration: 0.5 }}
             className="inline-flex items-center gap-2 rounded-full border border-marca-azul/30 bg-white/60 px-4 py-1.5 text-sm font-medium text-marca-marino backdrop-blur"
           >
-            <span className="flex h-2 w-2 rounded-full bg-exito" /> Sahuarita, Arizona · Membresía mensual
+            <span className="flex h-2 w-2 rounded-full bg-exito" /> {dic.home.hero.badge}
           </motion.span>
 
           <motion.h1
@@ -52,9 +56,9 @@ export function Hero() {
             animate="visible"
             className="mt-6 font-display text-4xl font-extrabold leading-[1.05] text-marca-marino sm:text-5xl lg:text-6xl"
           >
-            {TITULAR.map((p, i) => (
+            {titular.map((p, i) => (
               <motion.span key={i} variants={palabra} className="mr-[0.25em] inline-block">
-                {p === "compras" || p === "comprar" ? (
+                {PALABRAS_RESALTADAS.has(p) ? (
                   <span className="texto-gradiente">{p}</span>
                 ) : (
                   p
@@ -69,8 +73,7 @@ export function Hero() {
             transition={{ delay: 0.7, duration: 0.6 }}
             className="mx-auto mt-6 max-w-xl text-lg text-tenue lg:mx-0"
           >
-            Hazte miembro, escanea el QR y llévatela. La sacas de la bodega cuando la
-            necesitas y la devuelves en 72 horas. Así de fácil.
+            {dic.home.hero.subtitulo}
           </motion.p>
 
           <motion.div
@@ -80,10 +83,10 @@ export function Hero() {
             className="mt-8 flex flex-col items-center gap-3 sm:flex-row lg:items-start lg:justify-start"
           >
             <BotonLink href="/registro" variante="primario" tamano="lg" className="w-full sm:w-auto">
-              Hazte miembro por $29.99/mes <ArrowRight className="h-5 w-5" />
+              {dic.home.hero.ctaPrimario} <ArrowRight className="h-5 w-5" />
             </BotonLink>
             <BotonLink href="/#como-funciona" variante="fantasma" tamano="lg" className="w-full sm:w-auto">
-              <ScanLine className="h-5 w-5" /> Ver cómo funciona
+              <ScanLine className="h-5 w-5" /> {dic.home.hero.ctaSecundario}
             </BotonLink>
           </motion.div>
 
@@ -93,7 +96,7 @@ export function Hero() {
             transition={{ delay: 1.2, duration: 0.6 }}
             className="mt-5 text-sm text-tenue"
           >
-            Sin compras · Sin ocupar espacio en casa · Cancela cuando quieras
+            {dic.home.hero.notaPie}
           </motion.p>
         </div>
 

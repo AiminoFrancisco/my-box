@@ -7,20 +7,22 @@ import { generarYSubirQR } from "@/lib/qr";
 import { subirImagenHerramienta } from "@/lib/imagenes";
 import { enviarMail } from "@/lib/resend";
 import { mailComprobanteAprobado, mailComprobanteRechazado } from "@/lib/plantillas-mail";
+import { obtenerDic } from "@/lib/i18n/servidor";
 import type { EstadoUsuario } from "@/types/modelos";
 
 export type Resp = { ok?: boolean; error?: string };
 
 /** Verifica que quien llama sea admin. Devuelve el cliente admin. */
 async function exigirAdmin() {
+  const dic = obtenerDic();
   const supabase = crearClienteServidor();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) throw new Error("No autenticado");
+  if (!user) throw new Error(dic.admin.acciones.noAutenticado);
   const admin = crearClienteAdmin();
   const { data } = await admin.from("perfiles").select("rol").eq("id", user.id).single();
-  if (data?.rol !== "admin") throw new Error("No autorizado");
+  if (data?.rol !== "admin") throw new Error(dic.admin.acciones.noAutorizado);
   return { admin, userId: user.id };
 }
 
@@ -28,6 +30,7 @@ async function exigirAdmin() {
 
 export async function aprobarComprobante(comprobanteId: string): Promise<Resp> {
   try {
+    const dic = obtenerDic();
     const { admin, userId } = await exigirAdmin();
 
     const { data: comp } = await admin
@@ -35,7 +38,7 @@ export async function aprobarComprobante(comprobanteId: string): Promise<Resp> {
       .select("id, perfil_id, monto")
       .eq("id", comprobanteId)
       .single();
-    if (!comp) return { error: "Comprobante no encontrado." };
+    if (!comp) return { error: dic.admin.acciones.comprobanteNoEncontrado };
 
     await admin
       .from("comprobantes_pago")
@@ -50,7 +53,7 @@ export async function aprobarComprobante(comprobanteId: string): Promise<Resp> {
       tipo: "membresia",
       monto: comp.monto,
       estado: "pagado",
-      descripcion: "Membresía mensual (comprobante aprobado)",
+      descripcion: dic.admin.acciones.descripcionMembresia,
     });
 
     // Mail de aprobación.
@@ -74,6 +77,7 @@ export async function aprobarComprobante(comprobanteId: string): Promise<Resp> {
 
 export async function rechazarComprobante(comprobanteId: string, nota: string): Promise<Resp> {
   try {
+    const dic = obtenerDic();
     const { admin, userId } = await exigirAdmin();
 
     const { data: comp } = await admin
@@ -81,7 +85,7 @@ export async function rechazarComprobante(comprobanteId: string, nota: string): 
       .select("perfil_id")
       .eq("id", comprobanteId)
       .single();
-    if (!comp) return { error: "Comprobante no encontrado." };
+    if (!comp) return { error: dic.admin.acciones.comprobanteNoEncontrado };
 
     await admin
       .from("comprobantes_pago")
@@ -143,7 +147,7 @@ export async function crearHerramienta(formData: FormData): Promise<Resp> {
       estado: String(formData.get("estado") ?? "disponible"),
       foto_url: String(formData.get("foto_url") ?? "").trim() || null,
     };
-    if (!fila.numero_inventario || !fila.nombre) return { error: "Número de inventario y nombre son obligatorios." };
+    if (!fila.numero_inventario || !fila.nombre) return { error: obtenerDic().admin.acciones.inventarioNombreObligatorios };
 
     // Si subieron una imagen (arrastrada o seleccionada), la guardamos y usamos su URL.
     const foto = formData.get("foto_archivo") as File | null;
@@ -153,7 +157,7 @@ export async function crearHerramienta(formData: FormData): Promise<Resp> {
     }
 
     const { data: creada, error } = await admin.from("herramientas").insert(fila).select("id, numero_inventario, qr_token").single();
-    if (error || !creada) return { error: "No se pudo crear (¿número de inventario repetido?)." };
+    if (error || !creada) return { error: obtenerDic().admin.acciones.noSePudoCrear };
 
     // Genera y guarda el QR.
     const urlQr = await generarYSubirQR(creada.numero_inventario, creada.qr_token);
@@ -200,7 +204,7 @@ export async function eliminarHerramienta(id: string): Promise<Resp> {
   try {
     const { admin } = await exigirAdmin();
     const { error } = await admin.from("herramientas").delete().eq("id", id);
-    if (error) return { error: "No se pudo eliminar (puede tener préstamos asociados)." };
+    if (error) return { error: obtenerDic().admin.acciones.noSePudoEliminarHerramienta };
     revalidatePath("/admin/herramientas");
     return { ok: true };
   } catch (e) {
@@ -245,7 +249,7 @@ export async function guardarAnunciante(id: string | null, formData: FormData): 
       descripcion: String(formData.get("descripcion") ?? "").trim() || null,
       activo: formData.get("activo") === "on" || formData.get("activo") === "true",
     };
-    if (!fila.nombre || !fila.categoria) return { error: "Nombre y categoría son obligatorios." };
+    if (!fila.nombre || !fila.categoria) return { error: obtenerDic().admin.acciones.nombreCategoriaObligatorios };
 
     if (id) await admin.from("anunciantes").update(fila).eq("id", id);
     else await admin.from("anunciantes").insert(fila);

@@ -1,42 +1,29 @@
 import { ClipboardCheck, KeyRound, ScanLine, Timer } from "lucide-react";
 import { Revelar, RevelarLista, ItemLista } from "@/components/ui/Revelar";
+import { obtenerDic } from "@/lib/i18n/servidor";
 
-const PASOS = [
-  {
-    Icono: ClipboardCheck,
-    titulo: "Inscríbete y paga",
-    texto: "Crea tu cuenta y paga la membresía de $29.99/mes por transferencia o Zelle. Subes tu comprobante y lo aprobamos.",
-  },
-  {
-    Icono: KeyRound,
-    titulo: "Recibe tu código",
-    texto: "Al activarte, desbloqueas el código de acceso a la bodega. Entras por tu cuenta cuando lo necesites.",
-  },
-  {
-    Icono: ScanLine,
-    titulo: "Escanea el QR y llévatela",
-    texto: "Escanea el QR de hasta 5 herramientas a la vez y quedan asignadas a ti al instante.",
-  },
-  {
-    Icono: Timer,
-    titulo: "Devuélvela en 72 hs",
-    texto: "Tienes 3 días de uso. Vuelves a escanear el QR para devolverla y cierras el préstamo.",
-  },
-];
+const ICONOS_PASOS = [ClipboardCheck, KeyRound, ScanLine, Timer] as const;
 
 export function ComoFunciona() {
+  const dic = obtenerDic();
+  const cf = dic.home.comoFunciona;
+  const PASOS = [
+    { Icono: ICONOS_PASOS[0], ...cf.pasos.inscribete },
+    { Icono: ICONOS_PASOS[1], ...cf.pasos.codigo },
+    { Icono: ICONOS_PASOS[2], ...cf.pasos.escanea },
+    { Icono: ICONOS_PASOS[3], ...cf.pasos.devuelve },
+  ];
   return (
     <section id="como-funciona" className="contenedor scroll-mt-20 py-24">
       <Revelar className="mx-auto max-w-2xl text-center">
         <span className="text-sm font-semibold uppercase tracking-wider text-marca-azul">
-          Cómo funciona
+          {cf.etiqueta}
         </span>
         <h2 className="mt-3 font-display text-3xl font-extrabold text-marca-marino sm:text-4xl">
-          Tu herramienta en 4 pasos
+          {cf.titulo}
         </h2>
         <p className="mt-4 text-tenue">
-          Sin complicaciones. Te inscribes una vez y sacas lo que necesitas, cuando lo
-          necesitas.
+          {cf.subtitulo}
         </p>
       </Revelar>
 

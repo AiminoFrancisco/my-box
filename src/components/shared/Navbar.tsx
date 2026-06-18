@@ -4,18 +4,21 @@ import Link from "next/link";
 import { useState, useEffect } from "react";
 import { Wrench, Menu, X } from "lucide-react";
 import { BotonLink } from "@/components/ui/Boton";
+import { SelectorIdioma } from "@/components/shared/SelectorIdioma";
+import { useDic } from "@/lib/i18n/cliente";
 import { cn } from "@/lib/utils";
 
-const ENLACES = [
-  { href: "/#como-funciona", texto: "Cómo funciona" },
-  { href: "/#catalogo", texto: "Herramientas" },
-  { href: "/#quienes-somos", texto: "Quiénes somos" },
-  { href: "/#anunciantes", texto: "Aliados" },
-];
-
 export function Navbar() {
+  const dic = useDic();
   const [abierto, setAbierto] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+
+  const enlaces = [
+    { href: "/#como-funciona", texto: dic.common.nav.comoFunciona },
+    { href: "/#catalogo", texto: dic.common.nav.herramientas },
+    { href: "/#quienes-somos", texto: dic.common.nav.quienesSomos },
+    { href: "/#anunciantes", texto: dic.common.nav.aliados },
+  ];
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 12);
@@ -45,7 +48,7 @@ export function Navbar() {
 
         {/* Desktop */}
         <div className="hidden items-center gap-7 md:flex">
-          {ENLACES.map((e) => (
+          {enlaces.map((e) => (
             <Link
               key={e.href}
               href={e.href}
@@ -57,11 +60,12 @@ export function Navbar() {
         </div>
 
         <div className="hidden items-center gap-3 md:flex">
+          <SelectorIdioma />
           <BotonLink href="/login" variante="fantasma" tamano="sm">
-            Iniciar sesión
+            {dic.common.nav.iniciarSesion}
           </BotonLink>
           <BotonLink href="/registro" variante="primario" tamano="sm">
-            Hazte miembro
+            {dic.common.nav.hazteMiembro}
           </BotonLink>
         </div>
 
@@ -69,7 +73,7 @@ export function Navbar() {
         <button
           className="rounded-lg p-2 text-contenido md:hidden"
           onClick={() => setAbierto((v) => !v)}
-          aria-label="Menú"
+          aria-label={dic.common.nav.menu}
         >
           {abierto ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
         </button>
@@ -79,7 +83,7 @@ export function Navbar() {
       {abierto && (
         <div className="border-t border-borde bg-superficie md:hidden">
           <div className="contenedor flex flex-col gap-1 py-4">
-            {ENLACES.map((e) => (
+            {enlaces.map((e) => (
               <Link
                 key={e.href}
                 href={e.href}
@@ -91,11 +95,14 @@ export function Navbar() {
             ))}
             <div className="mt-2 flex flex-col gap-2">
               <BotonLink href="/login" variante="fantasma" tamano="sm">
-                Iniciar sesión
+                {dic.common.nav.iniciarSesion}
               </BotonLink>
               <BotonLink href="/registro" variante="primario" tamano="sm">
-                Hazte miembro
+                {dic.common.nav.hazteMiembro}
               </BotonLink>
+              <div className="mt-2 flex justify-center">
+                <SelectorIdioma />
+              </div>
             </div>
           </div>
         </div>

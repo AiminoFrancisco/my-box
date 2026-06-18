@@ -6,10 +6,13 @@ import { AvisoMembresia } from "@/components/miembro/AvisoMembresia";
 import { TemporizadorPrestamo } from "@/components/miembro/TemporizadorPrestamo";
 import { CONFIG_DEFECTO } from "@/lib/config";
 import { formatoDinero } from "@/lib/utils";
+import { obtenerDic } from "@/lib/i18n/servidor";
+import { interpolar } from "@/lib/i18n/interpolar";
 
-export const metadata = { title: "Mi panel · My Borrow Box" };
+export const metadata = { title: "Dashboard · My Borrow Box" };
 
 export default async function PanelPage() {
+  const dic = obtenerDic();
   const perfil = await obtenerPerfil();
   const [prestamos, cargos] = await Promise.all([obtenerMisPrestamos(), obtenerMisCargos()]);
 
@@ -23,48 +26,48 @@ export default async function PanelPage() {
     <div className="space-y-6">
       <div>
         <h1 className="font-display text-2xl font-extrabold text-marca-marino">
-          ¡Hola, {perfil?.nombre_completo.split(" ")[0]}! 👋
+          {interpolar(dic.member.panel.saludo, { nombre: perfil?.nombre_completo.split(" ")[0] ?? "" })}
         </h1>
-        <p className="mt-1 text-tenue">Este es tu resumen de hoy.</p>
+        <p className="mt-1 text-tenue">{dic.member.panel.subtitulo}</p>
       </div>
 
       {perfil && <AvisoMembresia estado={perfil.estado} />}
 
       {/* Métricas */}
       <div className="grid grid-cols-3 gap-3 sm:gap-4">
-        <TarjetaMetrica Icono={Boxes} etiqueta="Activas" etiquetaLarga="Herramientas activas" valor={`${nActivos}/${CONFIG_DEFECTO.max_herramientas}`} color="azul" />
-        <TarjetaMetrica Icono={ScanLine} etiqueta="Disponibles" etiquetaLarga="Puedes sacar" valor={`${restantes}`} color="exito" />
-        <TarjetaMetrica Icono={DollarSign} etiqueta="Cargos" etiquetaLarga="Cargos pendientes" valor={formatoDinero(totalPendiente)} color={totalPendiente > 0 ? "peligro" : "neutro"} />
+        <TarjetaMetrica Icono={Boxes} etiqueta={dic.member.panel.metricas.activasCorta} etiquetaLarga={dic.member.panel.metricas.activasLarga} valor={`${nActivos}/${CONFIG_DEFECTO.max_herramientas}`} color="azul" />
+        <TarjetaMetrica Icono={ScanLine} etiqueta={dic.member.panel.metricas.disponiblesCorta} etiquetaLarga={dic.member.panel.metricas.disponiblesLarga} valor={`${restantes}`} color="exito" />
+        <TarjetaMetrica Icono={DollarSign} etiqueta={dic.member.panel.metricas.cargosCorta} etiquetaLarga={dic.member.panel.metricas.cargosLarga} valor={formatoDinero(totalPendiente)} color={totalPendiente > 0 ? "peligro" : "neutro"} />
       </div>
 
       {/* Accesos rápidos */}
       <div className="grid gap-4 sm:grid-cols-3">
-        <AccesoRapido href="/escanear" Icono={ScanLine} titulo="Escanear QR" texto="Saca o devuelve una herramienta" />
-        <AccesoRapido href="/herramientas" Icono={Boxes} titulo="Ver herramientas" texto="Explora el catálogo" />
-        <AccesoRapido href="/bodega" Icono={DoorOpen} titulo="Acceso a bodega" texto="Tu código de la puerta" />
+        <AccesoRapido href="/escanear" Icono={ScanLine} titulo={dic.member.panel.accesos.escanearTitulo} texto={dic.member.panel.accesos.escanearTexto} />
+        <AccesoRapido href="/herramientas" Icono={Boxes} titulo={dic.member.panel.accesos.herramientasTitulo} texto={dic.member.panel.accesos.herramientasTexto} />
+        <AccesoRapido href="/bodega" Icono={DoorOpen} titulo={dic.member.panel.accesos.bodegaTitulo} texto={dic.member.panel.accesos.bodegaTexto} />
       </div>
 
       {/* Préstamos activos */}
       <div className="rounded-2xl border border-borde bg-superficie p-6 shadow-suave">
         <div className="flex items-center justify-between">
           <h2 className="flex items-center gap-2 font-display text-lg font-bold text-marca-marino">
-            <Clock className="h-5 w-5 text-marca-azul" /> Tus préstamos activos
+            <Clock className="h-5 w-5 text-marca-azul" /> {dic.member.panel.activos.titulo}
           </h2>
           <Link href="/mis-prestamos" className="inline-flex items-center gap-1 text-sm font-medium text-marca-azul hover:underline">
-            Ver todos <ArrowRight className="h-4 w-4" />
+            {dic.member.panel.activos.verTodos} <ArrowRight className="h-4 w-4" />
           </Link>
         </div>
 
         {activos.length === 0 ? (
           <p className="mt-4 rounded-xl bg-fondo px-4 py-6 text-center text-sm text-tenue">
-            No tienes herramientas prestadas ahora mismo.
+            {dic.member.panel.activos.vacio}
           </p>
         ) : (
           <ul className="mt-4 space-y-3">
             {activos.slice(0, 4).map((p) => (
               <li key={p.id} className="flex items-center justify-between gap-4 rounded-xl bg-fondo px-4 py-3">
                 <div className="min-w-0">
-                  <p className="truncate font-medium text-marca-marino">{p.herramientas?.nombre ?? "Herramienta"}</p>
+                  <p className="truncate font-medium text-marca-marino">{p.herramientas?.nombre ?? dic.member.panel.activos.herramientaFallback}</p>
                   <p className="text-xs text-tenue">{p.herramientas?.numero_inventario}</p>
                 </div>
                 <TemporizadorPrestamo fechaLimite={p.fecha_limite} />

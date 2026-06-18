@@ -2,6 +2,7 @@
 
 import { useRef, useState } from "react";
 import { ImagePlus, X } from "lucide-react";
+import { useDic } from "@/lib/i18n/cliente";
 import { cn } from "@/lib/utils";
 
 /**
@@ -10,6 +11,7 @@ import { cn } from "@/lib/utils";
  * en el FormData del formulario.
  */
 export function CampoImagen({ fotoActual }: { fotoActual?: string | null }) {
+  const dic = useDic();
   const inputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(fotoActual ?? null);
   const [arrastrando, setArrastrando] = useState(false);
@@ -32,7 +34,7 @@ export function CampoImagen({ fotoActual }: { fotoActual?: string | null }) {
 
   return (
     <div>
-      <span className="mb-1 block text-sm font-medium text-marca-marino">Foto de la herramienta</span>
+      <span className="mb-1 block text-sm font-medium text-marca-marino">{dic.admin.campoImagen.fotoHerramienta}</span>
 
       <div
         onClick={() => inputRef.current?.click()}
@@ -51,7 +53,7 @@ export function CampoImagen({ fotoActual }: { fotoActual?: string | null }) {
         {preview ? (
           <>
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={preview} alt="Vista previa" className="h-32 w-full rounded-lg object-cover" />
+            <img src={preview} alt={dic.admin.campoImagen.altPreview} className="h-32 w-full rounded-lg object-cover" />
             <button
               type="button"
               onClick={(e) => { e.stopPropagation(); limpiar(); }}
@@ -63,8 +65,8 @@ export function CampoImagen({ fotoActual }: { fotoActual?: string | null }) {
         ) : (
           <>
             <ImagePlus className="h-8 w-8 text-marca-azul" />
-            <p className="text-sm text-tenue">Arrastra una imagen aquí o <span className="font-semibold text-marca-azul">toca para elegir</span></p>
-            <p className="text-xs text-tenue">JPG o PNG</p>
+            <p className="text-sm text-tenue">{dic.admin.campoImagen.arrastra}<span className="font-semibold text-marca-azul">{dic.admin.campoImagen.tocaParaElegir}</span></p>
+            <p className="text-xs text-tenue">{dic.admin.campoImagen.formatos}</p>
           </>
         )}
       </div>

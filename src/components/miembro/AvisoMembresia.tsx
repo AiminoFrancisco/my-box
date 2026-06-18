@@ -1,30 +1,16 @@
 import Link from "next/link";
 import { AlertTriangle, ArrowRight } from "lucide-react";
+import { obtenerDic } from "@/lib/i18n/servidor";
 import type { EstadoUsuario } from "@/types/modelos";
 
-const MENSAJES: Partial<Record<EstadoUsuario, { titulo: string; texto: string }>> = {
-  pendiente_pago: {
-    titulo: "Tu membresía está pendiente de pago",
-    texto: "Realiza el pago y sube tu comprobante para activar tu cuenta y empezar a sacar herramientas.",
-  },
-  comprobante_en_revision: {
-    titulo: "Estamos revisando tu comprobante",
-    texto: "En cuanto lo aprobemos, te avisaremos por correo y desbloquearás todo.",
-  },
-  suspendido: {
-    titulo: "Tu membresía está suspendida",
-    texto: "Tienes cargos pendientes o un tema con tu cuenta. Regulariza tu pago para reactivarla.",
-  },
-  cancelado: {
-    titulo: "Tu membresía está cancelada",
-    texto: "Vuelve a activar tu membresía para seguir usando la bodega.",
-  },
-};
+type ClaveAviso = "pendiente_pago" | "comprobante_en_revision" | "suspendido" | "cancelado";
 
 /** Banner de aviso para miembros que NO están activos. */
 export function AvisoMembresia({ estado }: { estado: EstadoUsuario }) {
   if (estado === "activo") return null;
-  const m = MENSAJES[estado];
+  const dic = obtenerDic();
+  const avisos = dic.member.aviso;
+  const m = (estado in avisos ? avisos[estado as ClaveAviso] : null);
   if (!m) return null;
 
   return (

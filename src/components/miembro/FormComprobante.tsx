@@ -4,8 +4,10 @@ import { useState, useRef } from "react";
 import { useFormState, useFormStatus } from "react-dom";
 import { Upload, AlertCircle, CheckCircle2, Send } from "lucide-react";
 import { subirComprobante, type EstadoComprobanteForm } from "@/app/(miembro)/membresia/acciones";
+import { useDic } from "@/lib/i18n/cliente";
 
 function BotonEnviar({ habilitado }: { habilitado: boolean }) {
+  const dic = useDic();
   const { pending } = useFormStatus();
   return (
     <button
@@ -14,12 +16,13 @@ function BotonEnviar({ habilitado }: { habilitado: boolean }) {
       className="inline-flex items-center justify-center gap-2 rounded-full bg-gradiente-cta px-6 py-3 font-semibold text-marca-marino shadow-suave transition-all hover:shadow-glow active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50"
     >
       <Send className="h-5 w-5" />
-      {pending ? "Enviando…" : "Enviar comprobante"}
+      {pending ? dic.member.comprobanteForm.enviando : dic.member.comprobanteForm.enviar}
     </button>
   );
 }
 
 export function FormComprobante() {
+  const dic = useDic();
   const [estado, accion] = useFormState<EstadoComprobanteForm, FormData>(subirComprobante, {});
   const [nombre, setNombre] = useState<string | null>(null);
   const ref = useRef<HTMLInputElement>(null);
@@ -29,8 +32,8 @@ export function FormComprobante() {
       <div className="flex items-start gap-3 rounded-xl bg-exito/10 p-4 text-sm text-exito">
         <CheckCircle2 className="h-5 w-5 flex-shrink-0" />
         <div>
-          <p className="font-semibold">¡Comprobante enviado!</p>
-          <p className="text-exito/80">Lo estamos revisando. Te avisaremos por correo cuando se active tu membresía.</p>
+          <p className="font-semibold">{dic.member.comprobanteForm.enviadoTitulo}</p>
+          <p className="text-exito/80">{dic.member.comprobanteForm.enviadoTexto}</p>
         </div>
       </div>
     );
@@ -46,7 +49,7 @@ export function FormComprobante() {
         }`}
       >
         <Upload className="h-5 w-5 flex-shrink-0 text-marca-azul" />
-        <span className="truncate">{nombre ?? "Subir comprobante (imagen o PDF)"}</span>
+        <span className="truncate">{nombre ?? dic.member.comprobanteForm.subir}</span>
       </button>
       <input
         ref={ref}

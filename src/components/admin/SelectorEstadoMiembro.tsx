@@ -4,15 +4,8 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { cambiarEstadoMiembro } from "@/app/(admin)/acciones";
+import { useDic } from "@/lib/i18n/cliente";
 import type { EstadoUsuario } from "@/types/modelos";
-
-const OPCIONES: { valor: EstadoUsuario; etiqueta: string }[] = [
-  { valor: "pendiente_pago", etiqueta: "Pendiente de pago" },
-  { valor: "comprobante_en_revision", etiqueta: "En revisión" },
-  { valor: "activo", etiqueta: "Activo" },
-  { valor: "suspendido", etiqueta: "Suspendido" },
-  { valor: "cancelado", etiqueta: "Cancelado" },
-];
 
 export function SelectorEstadoMiembro({
   perfilId,
@@ -21,6 +14,14 @@ export function SelectorEstadoMiembro({
   perfilId: string;
   estadoActual: EstadoUsuario;
 }) {
+  const dic = useDic();
+  const OPCIONES: { valor: EstadoUsuario; etiqueta: string }[] = [
+    { valor: "pendiente_pago", etiqueta: dic.admin.selectorEstado.pendiente_pago },
+    { valor: "comprobante_en_revision", etiqueta: dic.admin.selectorEstado.comprobante_en_revision },
+    { valor: "activo", etiqueta: dic.admin.selectorEstado.activo },
+    { valor: "suspendido", etiqueta: dic.admin.selectorEstado.suspendido },
+    { valor: "cancelado", etiqueta: dic.admin.selectorEstado.cancelado },
+  ];
   const router = useRouter();
   const [pendiente, startTransition] = useTransition();
 

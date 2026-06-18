@@ -4,8 +4,10 @@ import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { alternarCargoPagado } from "@/app/(admin)/acciones";
+import { useDic } from "@/lib/i18n/cliente";
 
 export function BotonCargoPagado({ id, pagado }: { id: string; pagado: boolean }) {
+  const dic = useDic();
   const router = useRouter();
   const [pendiente, startTransition] = useTransition();
 
@@ -25,7 +27,7 @@ export function BotonCargoPagado({ id, pagado }: { id: string; pagado: boolean }
       }`}
     >
       {pendiente && <Loader2 className="h-3 w-3 animate-spin" />}
-      {pagado ? "Pagado" : "Marcar pagado"}
+      {pagado ? dic.admin.botonCargo.pagado : dic.admin.botonCargo.marcarPagado}
     </button>
   );
 }

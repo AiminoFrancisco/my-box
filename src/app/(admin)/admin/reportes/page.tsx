@@ -1,10 +1,14 @@
 import { BarChart3, Wrench, Users, DollarSign } from "lucide-react";
 import { crearClienteAdmin } from "@/lib/supabase/admin";
+import { obtenerDic } from "@/lib/i18n/servidor";
 import { formatoDinero, formatoFecha } from "@/lib/utils";
 
-export const metadata = { title: "Reportes · Admin" };
+export function generateMetadata() {
+  return { title: obtenerDic().admin.meta.reportes };
+}
 
 export default async function ReportesPage() {
+  const dic = obtenerDic();
   const admin = crearClienteAdmin();
 
   const [{ data: prestamos }, { data: cargos }] = await Promise.all([
@@ -36,28 +40,28 @@ export default async function ReportesPage() {
     <div className="space-y-6">
       <div>
         <h1 className="flex items-center gap-2 font-display text-2xl font-extrabold text-marca-marino">
-          <BarChart3 className="h-6 w-6 text-marca-azul" /> Reportes
+          <BarChart3 className="h-6 w-6 text-marca-azul" /> {dic.admin.reportes.titulo}
         </h1>
-        <p className="mt-1 text-tenue">Métricas de uso e ingresos.</p>
+        <p className="mt-1 text-tenue">{dic.admin.reportes.subtitulo}</p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-3">
-        <Tarjeta Icono={DollarSign} etiqueta="Ingresos por membresía" valor={formatoDinero(ingresosMembresia)} />
-        <Tarjeta Icono={DollarSign} etiqueta="Ingresos por penalidades" valor={formatoDinero(ingresosPenalidades)} />
-        <Tarjeta Icono={Wrench} etiqueta="Préstamos totales" valor={String(P.length)} />
+        <Tarjeta Icono={DollarSign} etiqueta={dic.admin.reportes.ingresosMembresia} valor={formatoDinero(ingresosMembresia)} />
+        <Tarjeta Icono={DollarSign} etiqueta={dic.admin.reportes.ingresosPenalidades} valor={formatoDinero(ingresosPenalidades)} />
+        <Tarjeta Icono={Wrench} etiqueta={dic.admin.reportes.prestamosTotales} valor={String(P.length)} />
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
-        <Ranking titulo="Herramientas más usadas" Icono={Wrench} datos={masUsadas} max={maxUso} sufijo=" préstamos" />
-        <Ranking titulo="Miembros más activos" Icono={Users} datos={masActivos} max={maxAct} sufijo=" préstamos" />
+        <Ranking titulo={dic.admin.reportes.masUsadas} Icono={Wrench} datos={masUsadas} max={maxUso} sufijo={dic.admin.reportes.sufijoPrestamos} sinDatos={dic.admin.reportes.sinDatos} />
+        <Ranking titulo={dic.admin.reportes.masActivos} Icono={Users} datos={masActivos} max={maxAct} sufijo={dic.admin.reportes.sufijoPrestamos} sinDatos={dic.admin.reportes.sinDatos} />
       </div>
 
       <div className="rounded-2xl border border-borde bg-superficie p-6 shadow-suave">
-        <h2 className="font-display text-lg font-bold text-marca-marino">Historial de movimientos</h2>
+        <h2 className="font-display text-lg font-bold text-marca-marino">{dic.admin.reportes.historial}</h2>
         <div className="mt-4 overflow-x-auto">
           <table className="w-full text-sm">
             <thead className="text-left text-tenue">
-              <tr><th className="pb-2 font-medium">Herramienta</th><th className="pb-2 font-medium">Miembro</th><th className="pb-2 font-medium">Fecha</th></tr>
+              <tr><th className="pb-2 font-medium">{dic.admin.reportes.colHerramienta}</th><th className="pb-2 font-medium">{dic.admin.reportes.colMiembro}</th><th className="pb-2 font-medium">{dic.admin.reportes.colFecha}</th></tr>
             </thead>
             <tbody className="divide-y divide-borde">
               {P.slice(0, 12).map((p) => (
@@ -67,7 +71,7 @@ export default async function ReportesPage() {
                   <td className="py-2.5 text-tenue">{formatoFecha(p.fecha_prestamo)}</td>
                 </tr>
               ))}
-              {P.length === 0 && <tr><td colSpan={3} className="py-6 text-center text-tenue">Sin movimientos.</td></tr>}
+              {P.length === 0 && <tr><td colSpan={3} className="py-6 text-center text-tenue">{dic.admin.reportes.sinMovimientos}</td></tr>}
             </tbody>
           </table>
         </div>
@@ -86,12 +90,12 @@ function Tarjeta({ Icono, etiqueta, valor }: { Icono: React.ComponentType<{ clas
   );
 }
 
-function Ranking({ titulo, Icono, datos, max, sufijo }: { titulo: string; Icono: React.ComponentType<{ className?: string }>; datos: [string, number][]; max: number; sufijo: string }) {
+function Ranking({ titulo, Icono, datos, max, sufijo, sinDatos }: { titulo: string; Icono: React.ComponentType<{ className?: string }>; datos: [string, number][]; max: number; sufijo: string; sinDatos: string }) {
   return (
     <div className="rounded-2xl border border-borde bg-superficie p-6 shadow-suave">
       <h2 className="flex items-center gap-2 font-display text-lg font-bold text-marca-marino"><Icono className="h-5 w-5 text-marca-azul" /> {titulo}</h2>
       {datos.length === 0 ? (
-        <p className="mt-4 text-sm text-tenue">Sin datos todavía.</p>
+        <p className="mt-4 text-sm text-tenue">{sinDatos}</p>
       ) : (
         <ul className="mt-4 space-y-3">
           {datos.map(([nombre, n]) => (

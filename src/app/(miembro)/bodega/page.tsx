@@ -5,12 +5,14 @@ import { crearClienteServidor } from "@/lib/supabase/server";
 import { CodigoPuerta } from "@/components/miembro/CodigoPuerta";
 import { AvisoMembresia } from "@/components/miembro/AvisoMembresia";
 import { formatoFecha } from "@/lib/utils";
+import { obtenerDic } from "@/lib/i18n/servidor";
 
-export const metadata = { title: "Acceso a bodega · My Borrow Box" };
+export const metadata = { title: "Tool library access · My Borrow Box" };
 
 type Acceso = { id: string; tipo: "entrada" | "salida"; creado_en: string };
 
 export default async function BodegaPage() {
+  const dic = obtenerDic();
   const perfil = await obtenerPerfil();
   const codigo = perfil ? await obtenerCodigoPuerta(perfil.id) : null;
 
@@ -28,8 +30,8 @@ export default async function BodegaPage() {
         <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradiente-marca text-white shadow-glow">
           <DoorOpen className="h-6 w-6" />
         </span>
-        <h1 className="mt-3 font-display text-2xl font-extrabold text-marca-marino">Acceso a la bodega</h1>
-        <p className="mt-1 text-tenue">Usa este código en el candado de la puerta.</p>
+        <h1 className="mt-3 font-display text-2xl font-extrabold text-marca-marino">{dic.member.bodega.titulo}</h1>
+        <p className="mt-1 text-tenue">{dic.member.bodega.subtitulo}</p>
       </div>
 
       {perfil && <AvisoMembresia estado={perfil.estado} />}
@@ -39,13 +41,13 @@ export default async function BodegaPage() {
       {accesos.length > 0 && (
         <div className="rounded-2xl border border-borde bg-superficie p-5 shadow-suave">
           <h2 className="flex items-center gap-2 font-display font-bold text-marca-marino">
-            <History className="h-4 w-4 text-marca-azul" /> Tus últimos accesos
+            <History className="h-4 w-4 text-marca-azul" /> {dic.member.bodega.ultimosAccesos}
           </h2>
           <ul className="mt-3 space-y-2 text-sm">
             {accesos.map((a) => (
               <li key={a.id} className="flex items-center justify-between">
                 <span className={a.tipo === "entrada" ? "text-exito" : "text-tenue"}>
-                  {a.tipo === "entrada" ? "Entrada" : "Salida"}
+                  {a.tipo === "entrada" ? dic.member.bodega.entrada : dic.member.bodega.salida}
                 </span>
                 <span className="text-tenue">{formatoFecha(a.creado_en)}</span>
               </li>

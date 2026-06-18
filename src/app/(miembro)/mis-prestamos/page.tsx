@@ -5,12 +5,14 @@ import { BotonAccionQR } from "@/components/miembro/BotonAccionQR";
 import { BadgeEstado } from "@/components/ui/BadgeEstado";
 import { ImagenHerramienta } from "@/components/ui/ImagenHerramienta";
 import { formatoDinero, formatoFecha } from "@/lib/utils";
+import { obtenerDic } from "@/lib/i18n/servidor";
+import { interpolar } from "@/lib/i18n/interpolar";
 
-export const metadata = { title: "Mis préstamos · My Borrow Box" };
-
-const ETIQUETA_CARGO = { retraso: "Retraso", reemplazo: "Reemplazo", membresia: "Membresía" } as const;
+export const metadata = { title: "My Loans · My Borrow Box" };
 
 export default async function MisPrestamosPage() {
+  const dic = obtenerDic();
+  const ETIQUETA_CARGO = dic.member.prestamos.tipoCargo;
   const [prestamos, cargos] = await Promise.all([obtenerMisPrestamos(), obtenerMisCargos()]);
 
   const activos = prestamos.filter((p) => p.estado === "activo" || p.estado === "vencido");
@@ -20,17 +22,17 @@ export default async function MisPrestamosPage() {
     <div className="space-y-8">
       <div>
         <h1 className="flex items-center gap-2 font-display text-2xl font-extrabold text-marca-marino">
-          <Clock className="h-6 w-6 text-marca-azul" /> Mis préstamos
+          <Clock className="h-6 w-6 text-marca-azul" /> {dic.member.prestamos.titulo}
         </h1>
-        <p className="mt-1 text-tenue">Tus herramientas, el tiempo restante y tus cargos.</p>
+        <p className="mt-1 text-tenue">{dic.member.prestamos.subtitulo}</p>
       </div>
 
       {/* Activos */}
       <section>
-        <h2 className="mb-3 font-display text-lg font-bold text-marca-marino">Activos ({activos.length})</h2>
+        <h2 className="mb-3 font-display text-lg font-bold text-marca-marino">{interpolar(dic.member.prestamos.activos, { n: activos.length })}</h2>
         {activos.length === 0 ? (
           <p className="rounded-xl bg-superficie p-6 text-center text-sm text-tenue shadow-suave">
-            No tienes préstamos activos.
+            {dic.member.prestamos.activosVacio}
           </p>
         ) : (
           <ul className="space-y-3">
@@ -41,8 +43,8 @@ export default async function MisPrestamosPage() {
                     <ImagenHerramienta src={p.herramientas?.foto_url} alt={p.herramientas?.nombre ?? ""} categoria={p.herramientas?.categoria} />
                   </div>
                   <div>
-                    <p className="font-medium text-marca-marino">{p.herramientas?.nombre ?? "Herramienta"}</p>
-                    <p className="text-xs text-tenue">Desde {formatoFecha(p.fecha_prestamo)}</p>
+                    <p className="font-medium text-marca-marino">{p.herramientas?.nombre ?? dic.member.prestamos.herramientaFallback}</p>
+                    <p className="text-xs text-tenue">{interpolar(dic.member.prestamos.desde, { fecha: formatoFecha(p.fecha_prestamo) })}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-4">
@@ -60,11 +62,11 @@ export default async function MisPrestamosPage() {
       {/* Cargos */}
       <section>
         <h2 className="mb-3 flex items-center gap-2 font-display text-lg font-bold text-marca-marino">
-          <DollarSign className="h-5 w-5 text-marca-azul" /> Cargos
+          <DollarSign className="h-5 w-5 text-marca-azul" /> {dic.member.prestamos.cargos}
         </h2>
         {cargos.length === 0 ? (
           <p className="rounded-xl bg-superficie p-6 text-center text-sm text-tenue shadow-suave">
-            No tienes cargos. ¡Bien hecho! 🎉
+            {dic.member.prestamos.cargosVacio}
           </p>
         ) : (
           <ul className="divide-y divide-borde rounded-2xl border border-borde bg-superficie shadow-suave">
@@ -77,7 +79,7 @@ export default async function MisPrestamosPage() {
                   <p className="text-xs text-tenue">{c.descripcion ?? formatoFecha(c.creado_en)}</p>
                 </div>
                 <BadgeEstado color={c.estado === "pagado" ? "exito" : "alerta"}>
-                  {c.estado === "pagado" ? "Pagado" : "Pendiente"}
+                  {c.estado === "pagado" ? dic.member.prestamos.estadoCargo.pagado : dic.member.prestamos.estadoCargo.pendiente}
                 </BadgeEstado>
               </li>
             ))}
@@ -88,12 +90,12 @@ export default async function MisPrestamosPage() {
       {/* Historial */}
       {historial.length > 0 && (
         <section>
-          <h2 className="mb-3 font-display text-lg font-bold text-marca-marino">Historial ({historial.length})</h2>
+          <h2 className="mb-3 font-display text-lg font-bold text-marca-marino">{interpolar(dic.member.prestamos.historial, { n: historial.length })}</h2>
           <ul className="space-y-2">
             {historial.map((p) => (
               <li key={p.id} className="flex items-center justify-between rounded-xl bg-superficie px-4 py-3 text-sm shadow-suave">
-                <span className="text-marca-marino">{p.herramientas?.nombre ?? "Herramienta"}</span>
-                <span className="text-tenue">Devuelta {p.fecha_devolucion ? formatoFecha(p.fecha_devolucion) : ""}</span>
+                <span className="text-marca-marino">{p.herramientas?.nombre ?? dic.member.prestamos.herramientaFallback}</span>
+                <span className="text-tenue">{interpolar(dic.member.prestamos.devuelta, { fecha: p.fecha_devolucion ? formatoFecha(p.fecha_devolucion) : "" })}</span>
               </li>
             ))}
           </ul>

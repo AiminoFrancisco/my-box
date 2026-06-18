@@ -5,12 +5,14 @@ import { crearClienteAdmin } from "@/lib/supabase/admin";
 import { SelectorEstadoMiembro } from "@/components/admin/SelectorEstadoMiembro";
 import { BadgeEstado } from "@/components/ui/BadgeEstado";
 import { ESTADOS_USUARIO } from "@/lib/config";
+import { obtenerDic } from "@/lib/i18n/servidor";
 import { formatoDinero, formatoFecha } from "@/lib/utils";
-import type { Perfil } from "@/types/modelos";
+import type { Perfil, TipoPersona, EstadoPrestamo } from "@/types/modelos";
 
 type IdRow = { id: string; tipo_persona: string; url_imagen: string };
 
 export default async function DetalleMiembro({ params }: { params: { id: string } }) {
+  const dic = obtenerDic();
   const admin = crearClienteAdmin();
   const { data } = await admin.from("perfiles").select("*").eq("id", params.id).single();
   if (!data) notFound();
@@ -29,46 +31,49 @@ export default async function DetalleMiembro({ params }: { params: { id: string 
   return (
     <div className="space-y-6">
       <Link href="/admin/miembros" className="inline-flex items-center gap-1 text-sm text-tenue hover:text-marca-azul">
-        <ArrowLeft className="h-4 w-4" /> Volver a miembros
+        <ArrowLeft className="h-4 w-4" /> {dic.admin.miembros.detalle.volver}
       </Link>
 
       <div className="flex flex-col gap-4 rounded-2xl border border-borde bg-superficie p-6 shadow-suave sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="font-display text-2xl font-extrabold text-marca-marino">{perfil.nombre_completo}</h1>
-          <div className="mt-2"><BadgeEstado color={meta.color as "exito" | "alerta" | "peligro"}>{meta.etiqueta}</BadgeEstado></div>
+          <div className="mt-2"><BadgeEstado color={meta.color as "exito" | "alerta" | "peligro"}>{dic.common.estados.usuario[perfil.estado]}</BadgeEstado></div>
         </div>
         <div>
-          <p className="mb-1.5 text-xs text-tenue">Cambiar estado</p>
+          <p className="mb-1.5 text-xs text-tenue">{dic.admin.miembros.detalle.cambiarEstado}</p>
           <SelectorEstadoMiembro perfilId={perfil.id} estadoActual={perfil.estado} />
         </div>
       </div>
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-borde bg-superficie p-6 shadow-suave">
-          <h2 className="font-display text-lg font-bold text-marca-marino">Datos</h2>
+          <h2 className="font-display text-lg font-bold text-marca-marino">{dic.admin.miembros.detalle.datos}</h2>
           <div className="mt-4 space-y-3 text-sm">
             <Fila Icono={Mail} v={perfil.email ?? "—"} />
             <Fila Icono={Phone} v={perfil.telefono ?? "—"} />
             <Fila Icono={MapPin} v={perfil.direccion ?? "—"} />
             <Fila Icono={Cake} v={perfil.fecha_nacimiento ?? "—"} />
-            <Fila Icono={UserCheck} v={`Autorizada: ${perfil.persona_autorizada_nombre ?? "—"}`} />
-            <Fila Icono={User} v={`Miembro desde ${formatoFecha(perfil.creado_en)}`} />
+            <Fila Icono={UserCheck} v={dic.admin.miembros.detalle.autorizada.replace("{nombre}", perfil.persona_autorizada_nombre ?? "—")} />
+            <Fila Icono={User} v={dic.admin.miembros.detalle.miembroDesde.replace("{fecha}", formatoFecha(perfil.creado_en))} />
           </div>
         </div>
 
         <div className="rounded-2xl border border-borde bg-superficie p-6 shadow-suave">
-          <h2 className="font-display text-lg font-bold text-marca-marino">Identificaciones</h2>
+          <h2 className="font-display text-lg font-bold text-marca-marino">{dic.admin.miembros.detalle.identificaciones}</h2>
           {idsFirmadas.length === 0 ? (
-            <p className="mt-3 text-sm text-tenue">Sin identificaciones.</p>
+            <p className="mt-3 text-sm text-tenue">{dic.admin.miembros.detalle.sinIdentificaciones}</p>
           ) : (
             <div className="mt-4 grid grid-cols-2 gap-3">
-              {idsFirmadas.map((i) => (
+              {idsFirmadas.map((i) => {
+                const tipoLabel = dic.admin.miembros.tipoPersona[i.tipo_persona as TipoPersona] ?? i.tipo_persona;
+                return (
                 <a key={i.id} href={i.src} target="_blank" rel="noopener noreferrer">
-                  <p className="mb-1 text-xs font-medium capitalize text-tenue">{i.tipo_persona}</p>
+                  <p className="mb-1 text-xs font-medium text-tenue">{tipoLabel}</p>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src={i.src} alt={i.tipo_persona} className="h-28 w-full rounded-lg border border-borde object-cover" />
+                  <img src={i.src} alt={tipoLabel} className="h-28 w-full rounded-lg border border-borde object-cover" />
                 </a>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>
@@ -76,31 +81,31 @@ export default async function DetalleMiembro({ params }: { params: { id: string 
 
       <div className="grid gap-6 lg:grid-cols-2">
         <div className="rounded-2xl border border-borde bg-superficie p-6 shadow-suave">
-          <h2 className="font-display text-lg font-bold text-marca-marino">Préstamos recientes</h2>
+          <h2 className="font-display text-lg font-bold text-marca-marino">{dic.admin.miembros.detalle.prestamosRecientes}</h2>
           <ul className="mt-3 space-y-2 text-sm">
             {((prestamos ?? []) as any[]).map((p) => (
               <li key={p.id} className="flex justify-between">
                 <span className="text-marca-marino">{p.herramientas?.nombre ?? "—"}</span>
-                <span className="capitalize text-tenue">{p.estado}</span>
+                <span className="text-tenue">{dic.admin.estadoPrestamo[p.estado as EstadoPrestamo] ?? p.estado}</span>
               </li>
             ))}
-            {(!prestamos || prestamos.length === 0) && <li className="text-tenue">Sin préstamos.</li>}
+            {(!prestamos || prestamos.length === 0) && <li className="text-tenue">{dic.admin.miembros.detalle.sinPrestamos}</li>}
           </ul>
         </div>
 
         <div className="rounded-2xl border border-borde bg-superficie p-6 shadow-suave">
           <div className="flex items-center justify-between">
-            <h2 className="font-display text-lg font-bold text-marca-marino">Cargos</h2>
-            {totalPendiente > 0 && <span className="text-sm font-semibold text-peligro">{formatoDinero(totalPendiente)} pendiente</span>}
+            <h2 className="font-display text-lg font-bold text-marca-marino">{dic.admin.miembros.detalle.cargos}</h2>
+            {totalPendiente > 0 && <span className="text-sm font-semibold text-peligro">{dic.admin.miembros.detalle.pendiente.replace("{monto}", formatoDinero(totalPendiente))}</span>}
           </div>
           <ul className="mt-3 space-y-2 text-sm">
             {((cargos ?? []) as any[]).map((c) => (
               <li key={c.id} className="flex justify-between">
-                <span className="capitalize text-marca-marino">{c.tipo} · {formatoDinero(c.monto)}</span>
-                <span className={c.estado === "pagado" ? "text-exito" : "text-amber-700"}>{c.estado}</span>
+                <span className="text-marca-marino">{dic.admin.pagos.tipo[c.tipo as keyof typeof dic.admin.pagos.tipo] ?? c.tipo} · {formatoDinero(c.monto)}</span>
+                <span className={c.estado === "pagado" ? "text-exito" : "text-amber-700"}>{c.estado === "pagado" ? dic.admin.cargoEstado.pagado : dic.admin.cargoEstado.pendiente}</span>
               </li>
             ))}
-            {(!cargos || cargos.length === 0) && <li className="text-tenue">Sin cargos.</li>}
+            {(!cargos || cargos.length === 0) && <li className="text-tenue">{dic.admin.miembros.detalle.sinCargos}</li>}
           </ul>
         </div>
       </div>

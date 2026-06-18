@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { crearClienteServidor } from "@/lib/supabase/server";
+import { obtenerDic } from "@/lib/i18n/servidor";
 
 export type ResultadoAccion = { ok?: boolean; error?: string; mensaje?: string };
 
@@ -31,8 +32,9 @@ export type HerramientaEscaneada = {
 export async function buscarHerramienta(
   qr: string
 ): Promise<{ herramienta?: HerramientaEscaneada; error?: string }> {
+  const dic = obtenerDic();
   const token = extraerToken(qr);
-  if (!token) return { error: "Código QR inválido." };
+  if (!token) return { error: dic.member.acciones.qrInvalido };
 
   const supabase = crearClienteServidor();
   const { data, error } = await supabase
@@ -41,14 +43,15 @@ export async function buscarHerramienta(
     .eq("qr_token", token)
     .single();
 
-  if (error || !data) return { error: "No encontramos esa herramienta. Revisa el QR." };
+  if (error || !data) return { error: dic.member.acciones.herramientaNoEncontrada };
   return { herramienta: data as unknown as HerramientaEscaneada };
 }
 
 /** Saca una herramienta por su QR (token). Llama a la función SQL atómica. */
 export async function sacarHerramienta(qr: string): Promise<ResultadoAccion> {
+  const dic = obtenerDic();
   const token = extraerToken(qr);
-  if (!token) return { error: "Código QR inválido." };
+  if (!token) return { error: dic.member.acciones.qrInvalido };
 
   const supabase = crearClienteServidor();
   const { error } = await supabase.rpc("sacar_herramienta", { p_qr_token: token });
@@ -58,13 +61,14 @@ export async function sacarHerramienta(qr: string): Promise<ResultadoAccion> {
   revalidatePath("/mis-prestamos");
   revalidatePath("/herramientas");
   revalidatePath("/panel");
-  return { ok: true, mensaje: "¡Herramienta asignada! Tienes 72 horas para devolverla." };
+  return { ok: true, mensaje: dic.member.acciones.sacarOk };
 }
 
 /** Devuelve una herramienta por su QR (token). */
 export async function devolverHerramienta(qr: string): Promise<ResultadoAccion> {
+  const dic = obtenerDic();
   const token = extraerToken(qr);
-  if (!token) return { error: "Código QR inválido." };
+  if (!token) return { error: dic.member.acciones.qrInvalido };
 
   const supabase = crearClienteServidor();
   const { error } = await supabase.rpc("devolver_herramienta", { p_qr_token: token });
@@ -74,30 +78,32 @@ export async function devolverHerramienta(qr: string): Promise<ResultadoAccion> 
   revalidatePath("/mis-prestamos");
   revalidatePath("/herramientas");
   revalidatePath("/panel");
-  return { ok: true, mensaje: "¡Herramienta devuelta! Gracias." };
+  return { ok: true, mensaje: dic.member.acciones.devolverOk };
 }
 
 /** Registra entrada o salida de la bodega (solo miembros activos por RLS). */
 export async function registrarAcceso(tipo: "entrada" | "salida"): Promise<ResultadoAccion> {
+  const dic = obtenerDic();
   const supabase = crearClienteServidor();
   const {
     data: { user },
   } = await supabase.auth.getUser();
-  if (!user) return { error: "Sesión expirada." };
+  if (!user) return { error: dic.member.acciones.sesionExpirada };
 
   const { error } = await supabase.from("accesos_bodega").insert({ perfil_id: user.id, tipo });
-  if (error) return { error: "No se pudo registrar el acceso. ¿Tu membresía está activa?" };
+  if (error) return { error: dic.member.acciones.accesoError };
 
   revalidatePath("/bodega");
-  return { ok: true, mensaje: tipo === "entrada" ? "Entrada registrada." : "Salida registrada." };
+  return { ok: true, mensaje: tipo === "entrada" ? dic.member.acciones.entradaRegistrada : dic.member.acciones.salidaRegistrada };
 }
 
-/** Traduce mensajes técnicos de Postgres a algo claro en español. */
+/** Traduce mensajes técnicos de Postgres a un texto claro en el idioma activo. */
 function traducirError(msg: string): string {
-  if (/no está activa/i.test(msg)) return "Tu membresía no está activa todavía.";
-  if (/no encontrada/i.test(msg)) return "No encontramos esa herramienta. Revisa el QR.";
-  if (/no está disponible/i.test(msg)) return "Esa herramienta no está disponible ahora.";
-  if (/máximo/i.test(msg)) return "Ya tienes el máximo de 5 herramientas. Devuelve una para sacar otra.";
-  if (/no tienes esta herramienta/i.test(msg)) return "No tienes esa herramienta prestada.";
-  return "No se pudo completar la operación. Intenta de nuevo.";
+  const dic = obtenerDic();
+  if (/no está activa/i.test(msg)) return dic.member.acciones.errores.noActiva;
+  if (/no encontrada/i.test(msg)) return dic.member.acciones.herramientaNoEncontrada;
+  if (/no está disponible/i.test(msg)) return dic.member.acciones.errores.noDisponible;
+  if (/máximo/i.test(msg)) return dic.member.acciones.errores.maximo;
+  if (/no tienes esta herramienta/i.test(msg)) return dic.member.acciones.errores.noTienes;
+  return dic.member.acciones.errores.generico;
 }

@@ -5,8 +5,10 @@ import Link from "next/link";
 import { AlertCircle, ShieldCheck, Lock } from "lucide-react";
 import { iniciarSesionAdmin, type EstadoForm } from "@/app/(auth)/acciones";
 import { CampoPassword } from "@/components/ui/CampoPassword";
+import { useDic } from "@/lib/i18n/cliente";
 
 function BotonEnviar() {
+  const dic = useDic();
   const { pending } = useFormStatus();
   return (
     <button
@@ -15,12 +17,13 @@ function BotonEnviar() {
       className="inline-flex w-full items-center justify-center gap-2 rounded-full bg-marca-azul px-6 py-3 font-semibold text-white shadow-suave transition-all hover:shadow-glow active:scale-[0.98] disabled:opacity-60"
     >
       <Lock className="h-5 w-5" />
-      {pending ? "Verificando…" : "Entrar al panel"}
+      {pending ? dic.auth.adminLogin.botonVerificando : dic.auth.adminLogin.botonEntrar}
     </button>
   );
 }
 
 export function FormLoginAdmin() {
+  const dic = useDic();
   const [estado, accion] = useFormState<EstadoForm, FormData>(iniciarSesionAdmin, {});
 
   return (
@@ -30,19 +33,19 @@ export function FormLoginAdmin() {
           <ShieldCheck className="h-6 w-6" />
         </span>
         <div>
-          <h1 className="font-display text-xl font-extrabold text-white">Acceso administrativo</h1>
-          <p className="text-sm text-white/50">Solo personal de My Borrow Box.</p>
+          <h1 className="font-display text-xl font-extrabold text-white">{dic.auth.adminLogin.titulo}</h1>
+          <p className="text-sm text-white/50">{dic.auth.adminLogin.subtitulo}</p>
         </div>
       </div>
 
       <form action={accion} className="space-y-4">
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-white/80">Correo</span>
+          <span className="mb-1.5 block text-sm font-medium text-white/80">{dic.auth.adminLogin.email}</span>
           <input
             type="email"
             name="email"
             required
-            placeholder="admin@myborrowbox.com"
+            placeholder={dic.auth.adminLogin.emailPlaceholder}
             autoComplete="email"
             className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-white outline-none transition-all placeholder:text-white/30 focus:border-marca-azul focus:ring-2 focus:ring-marca-azul/30"
           />
@@ -50,7 +53,7 @@ export function FormLoginAdmin() {
 
         {/* Reutilizamos el campo con ojito, pero en tema oscuro va con su estilo propio */}
         <label className="block">
-          <span className="mb-1.5 block text-sm font-medium text-white/80">Contraseña</span>
+          <span className="mb-1.5 block text-sm font-medium text-white/80">{dic.auth.adminLogin.password}</span>
           <div className="[&_input]:border-white/10 [&_input]:bg-white/5 [&_input]:text-white [&_input]:placeholder:text-white/30 [&_span]:hidden">
             <CampoPassword etiqueta="" name="password" required placeholder="••••••••" autoComplete="current-password" />
           </div>
@@ -66,9 +69,9 @@ export function FormLoginAdmin() {
       </form>
 
       <p className="mt-6 text-center text-sm text-white/40">
-        ¿Eres miembro?{" "}
+        {dic.auth.adminLogin.eresMiembro}{" "}
         <Link href="/login" className="font-semibold text-marca-azul hover:underline">
-          Entra por aquí
+          {dic.auth.adminLogin.entraPorAqui}
         </Link>
       </p>
     </div>

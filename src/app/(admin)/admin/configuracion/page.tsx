@@ -2,10 +2,14 @@ import { Settings } from "lucide-react";
 import { crearClienteAdmin } from "@/lib/supabase/admin";
 import { FormConfiguracion } from "@/components/admin/FormConfiguracion";
 import { CONFIG_DEFECTO } from "@/lib/config";
+import { obtenerDic } from "@/lib/i18n/servidor";
 
-export const metadata = { title: "Configuración · Admin" };
+export function generateMetadata() {
+  return { title: obtenerDic().admin.meta.configuracion };
+}
 
 export default async function ConfiguracionPage() {
+  const dic = obtenerDic();
   const admin = crearClienteAdmin();
   const { data } = await admin.from("configuracion").select("clave, valor");
 
@@ -20,9 +24,9 @@ export default async function ConfiguracionPage() {
     <div className="space-y-6">
       <div>
         <h1 className="flex items-center gap-2 font-display text-2xl font-extrabold text-marca-marino">
-          <Settings className="h-6 w-6 text-marca-azul" /> Configuración
+          <Settings className="h-6 w-6 text-marca-azul" /> {dic.admin.config.titulo}
         </h1>
-        <p className="mt-1 text-tenue">Edita los datos del negocio sin tocar código.</p>
+        <p className="mt-1 text-tenue">{dic.admin.config.subtitulo}</p>
       </div>
 
       <FormConfiguracion valores={valores} />

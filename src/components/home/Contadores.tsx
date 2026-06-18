@@ -1,5 +1,6 @@
 import { Contador } from "@/components/ui/Contador";
 import { Revelar } from "@/components/ui/Revelar";
+import { obtenerDic } from "@/lib/i18n/servidor";
 
 export function Contadores({
   totalHerramientas,
@@ -8,15 +9,17 @@ export function Contadores({
   totalHerramientas: number;
   miembrosActivos: number;
 }) {
+  const dic = obtenerDic();
+  const c = dic.home.contadores;
   // Fallbacks lindos si la BD aún no tiene datos.
   const herr = totalHerramientas > 0 ? totalHerramientas : 200;
   const miembros = miembrosActivos > 0 ? miembrosActivos : 120;
 
   const METRICAS = [
-    { valor: herr, sufijo: "+", etiqueta: "Herramientas disponibles" },
-    { valor: miembros, sufijo: "+", etiqueta: "Miembros activos" },
-    { valor: 72, sufijo: " hs", etiqueta: "De uso por préstamo" },
-    { valor: 0, sufijo: "", etiqueta: "Herramientas que tuviste que comprar" },
+    { valor: herr, sufijo: "+", etiqueta: c.herramientasDisponibles },
+    { valor: miembros, sufijo: "+", etiqueta: c.miembrosActivos },
+    { valor: 72, sufijo: c.sufijoHoras, etiqueta: c.usoPorPrestamo },
+    { valor: 0, sufijo: "", etiqueta: c.herramientasQueCompraste },
   ];
 
   return (

@@ -2,10 +2,12 @@ import { redirect } from "next/navigation";
 import { ScanLine } from "lucide-react";
 import { obtenerPerfil } from "@/lib/auth";
 import { EscanerQR } from "@/components/miembro/EscanerQR";
+import { obtenerDic } from "@/lib/i18n/servidor";
 
-export const metadata = { title: "Escanear QR · My Borrow Box" };
+export const metadata = { title: "Scan QR · My Borrow Box" };
 
 export default async function EscanearPage() {
+  const dic = obtenerDic();
   const perfil = await obtenerPerfil();
   // Solo miembros activos pueden escanear/sacar herramientas.
   if (perfil && perfil.estado !== "activo") redirect("/membresia");
@@ -17,8 +19,8 @@ export default async function EscanearPage() {
         <span className="mx-auto flex h-12 w-12 items-center justify-center rounded-2xl bg-gradiente-marca text-white shadow-glow">
           <ScanLine className="h-6 w-6" />
         </span>
-        <h1 className="mt-3 font-display text-2xl font-extrabold text-marca-marino">Escanear herramienta</h1>
-        <p className="mt-1 text-tenue">Escanea el QR para sacar o devolver una herramienta.</p>
+        <h1 className="mt-3 font-display text-2xl font-extrabold text-marca-marino">{dic.member.escanear.titulo}</h1>
+        <p className="mt-1 text-tenue">{dic.member.escanear.subtitulo}</p>
       </div>
 
       <EscanerQR activo={activo} />

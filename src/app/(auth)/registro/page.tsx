@@ -1,6 +1,9 @@
 import { FormRegistro } from "@/components/auth/FormRegistro";
+import { obtenerDic } from "@/lib/i18n/servidor";
 
-export const metadata = { title: "Hazte miembro · My Borrow Box" };
+export function generateMetadata() {
+  return { title: obtenerDic().auth.registro.meta };
+}
 
 export default function RegistroPage() {
   return <FormRegistro />;

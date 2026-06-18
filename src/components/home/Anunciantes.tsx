@@ -1,27 +1,31 @@
 import { Phone, Globe, Building2 } from "lucide-react";
 import { Revelar, RevelarLista, ItemLista } from "@/components/ui/Revelar";
+import { obtenerDic } from "@/lib/i18n/servidor";
 import type { AnuncianteUI } from "@/lib/datos";
 
-const DEMO: AnuncianteUI[] = [
-  { id: "a1", nombre: "Desert Air HVAC", categoria: "HVAC", logo_url: "https://placehold.co/200x200/2B9FE6/FFFFFF?text=HVAC", telefono: "+1 520-555-0101", sitio_web: "https://desertairhvac.example.com", descripcion: "Aire acondicionado en Sahuarita y Green Valley." },
-  { id: "a2", nombre: "Sahuarita Roofing Pros", categoria: "Roofing", logo_url: "https://placehold.co/200x200/0B2A4A/FFFFFF?text=Roof", telefono: "+1 520-555-0102", sitio_web: "https://sahuaritaroofing.example.com", descripcion: "Techos nuevos y reparaciones." },
-  { id: "a3", nombre: "Green Valley Plumbing", categoria: "Plumbing", logo_url: "https://placehold.co/200x200/F5A623/0B2A4A?text=Plumb", telefono: "+1 520-555-0103", sitio_web: "https://gvplumbing.example.com", descripcion: "Plomería residencial 24/7." },
-];
-
 export function Anunciantes({ anunciantes }: { anunciantes: AnuncianteUI[] }) {
+  const dic = obtenerDic();
+  const an = dic.home.anunciantes;
+
+  const DEMO: AnuncianteUI[] = [
+    { id: "a1", nombre: "Desert Air HVAC", categoria: "HVAC", logo_url: "https://placehold.co/200x200/2B9FE6/FFFFFF?text=HVAC", telefono: "+1 520-555-0101", sitio_web: "https://desertairhvac.example.com", descripcion: an.demo.hvac.descripcion },
+    { id: "a2", nombre: "Sahuarita Roofing Pros", categoria: "Roofing", logo_url: "https://placehold.co/200x200/0B2A4A/FFFFFF?text=Roof", telefono: "+1 520-555-0102", sitio_web: "https://sahuaritaroofing.example.com", descripcion: an.demo.roofing.descripcion },
+    { id: "a3", nombre: "Green Valley Plumbing", categoria: "Plumbing", logo_url: "https://placehold.co/200x200/F5A623/0B2A4A?text=Plumb", telefono: "+1 520-555-0103", sitio_web: "https://gvplumbing.example.com", descripcion: an.demo.plumbing.descripcion },
+  ];
+
   const lista = anunciantes.length > 0 ? anunciantes : DEMO;
 
   return (
     <section id="anunciantes" className="contenedor scroll-mt-20 py-24">
       <Revelar className="mx-auto max-w-2xl text-center">
         <span className="inline-flex items-center gap-2 text-sm font-semibold uppercase tracking-wider text-marca-azul">
-          <Building2 className="h-4 w-4" /> Aliados locales
+          <Building2 className="h-4 w-4" /> {an.etiqueta}
         </span>
         <h2 className="mt-3 font-display text-3xl font-extrabold text-marca-marino sm:text-4xl">
-          Empresas de confianza en tu zona
+          {an.titulo}
         </h2>
         <p className="mt-4 text-tenue">
-          ¿Tu proyecto necesita un profesional? Estos negocios locales te pueden ayudar.
+          {an.subtitulo}
         </p>
       </Revelar>
 
@@ -53,7 +57,7 @@ export function Anunciantes({ anunciantes }: { anunciantes: AnuncianteUI[] }) {
                   )}
                   {a.sitio_web && (
                     <a href={a.sitio_web} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 text-tenue hover:text-marca-azul">
-                      <Globe className="h-4 w-4" /> Sitio web
+                      <Globe className="h-4 w-4" /> {an.sitioWeb}
                     </a>
                   )}
                 </div>
@@ -65,9 +69,9 @@ export function Anunciantes({ anunciantes }: { anunciantes: AnuncianteUI[] }) {
 
       <Revelar className="mt-10 text-center">
         <p className="text-sm text-tenue">
-          ¿Quieres anunciar tu negocio aquí?{" "}
+          {an.anunciaAntes}
           <a href="mailto:hola@myborrowbox.com" className="font-semibold text-marca-azul hover:underline">
-            Escríbenos
+            {an.anunciaEnlace}
           </a>
         </p>
       </Revelar>

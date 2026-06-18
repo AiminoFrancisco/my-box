@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { Wrench } from "lucide-react";
+import { obtenerDic } from "@/lib/i18n/servidor";
 
 export default function AuthLayout({ children }: { children: React.ReactNode }) {
+  const dic = obtenerDic();
   return (
     <div className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden px-4 py-10">
       <div className="mesh-fondo absolute inset-0 -z-10 animate-mesh opacity-60" />
@@ -16,7 +18,7 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
       <div className="w-full max-w-md">{children}</div>
 
       <Link href="/" className="mt-8 text-sm text-tenue hover:text-marca-azul">
-        ← Volver al inicio
+        {dic.auth.layout.volverInicio}
       </Link>
     </div>
   );

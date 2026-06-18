@@ -7,12 +7,16 @@ import { eliminarHerramienta } from "@/app/(admin)/acciones";
 import { BadgeEstado } from "@/components/ui/BadgeEstado";
 import { ImagenHerramienta } from "@/components/ui/ImagenHerramienta";
 import { ESTADOS_HERRAMIENTA } from "@/lib/config";
+import { obtenerDic } from "@/lib/i18n/servidor";
 import { formatoDinero } from "@/lib/utils";
 import type { Herramienta } from "@/types/modelos";
 
-export const metadata = { title: "Herramientas · Admin" };
+export function generateMetadata() {
+  return { title: obtenerDic().admin.meta.herramientas };
+}
 
 export default async function HerramientasAdminPage() {
+  const dic = obtenerDic();
   const admin = crearClienteAdmin();
   const { data } = await admin.from("herramientas").select("*").order("numero_inventario", { ascending: true });
   const herramientas = (data ?? []) as unknown as Herramienta[];
@@ -22,9 +26,9 @@ export default async function HerramientasAdminPage() {
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="flex items-center gap-2 font-display text-2xl font-extrabold text-marca-marino">
-            <Boxes className="h-6 w-6 text-marca-azul" /> Herramientas
+            <Boxes className="h-6 w-6 text-marca-azul" /> {dic.admin.herramientas.titulo}
           </h1>
-          <p className="mt-1 text-tenue">{herramientas.length} herramientas en inventario.</p>
+          <p className="mt-1 text-tenue">{dic.admin.herramientas.subtituloConteo.replace("{n}", String(herramientas.length))}</p>
         </div>
         <ModalHerramienta />
       </div>
@@ -33,13 +37,13 @@ export default async function HerramientasAdminPage() {
         <table className="w-full text-sm">
           <thead className="border-b border-borde text-left text-tenue">
             <tr>
-              <th className="px-4 py-3 font-medium">QR</th>
-              <th className="px-4 py-3 font-medium">Inventario</th>
-              <th className="px-4 py-3 font-medium">Nombre</th>
-              <th className="px-4 py-3 font-medium">Categoría</th>
-              <th className="px-4 py-3 font-medium">Reemplazo</th>
-              <th className="px-4 py-3 font-medium">Estado</th>
-              <th className="px-4 py-3 text-right font-medium">Acciones</th>
+              <th className="px-4 py-3 font-medium">{dic.admin.herramientas.colQr}</th>
+              <th className="px-4 py-3 font-medium">{dic.admin.herramientas.colInventario}</th>
+              <th className="px-4 py-3 font-medium">{dic.admin.herramientas.colNombre}</th>
+              <th className="px-4 py-3 font-medium">{dic.admin.herramientas.colCategoria}</th>
+              <th className="px-4 py-3 font-medium">{dic.admin.herramientas.colReemplazo}</th>
+              <th className="px-4 py-3 font-medium">{dic.admin.herramientas.colEstado}</th>
+              <th className="px-4 py-3 text-right font-medium">{dic.admin.herramientas.colAcciones}</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-borde">
@@ -50,7 +54,7 @@ export default async function HerramientasAdminPage() {
                   <td className="px-4 py-3">
                     {h.url_qr ? (
                       // eslint-disable-next-line @next/next/no-img-element
-                      <img src={h.url_qr} alt="QR" className="h-10 w-10 rounded" />
+                      <img src={h.url_qr} alt={dic.admin.herramientas.colQr} className="h-10 w-10 rounded" />
                     ) : (
                       <QrCode className="h-6 w-6 text-tenue" />
                     )}
@@ -66,10 +70,10 @@ export default async function HerramientasAdminPage() {
                   </td>
                   <td className="px-4 py-3 text-tenue">{h.categoria ?? "—"}</td>
                   <td className="px-4 py-3 text-tenue">{formatoDinero(h.valor_reemplazo)}</td>
-                  <td className="px-4 py-3"><BadgeEstado color={meta.color as "exito" | "alerta" | "peligro"}>{meta.etiqueta}</BadgeEstado></td>
+                  <td className="px-4 py-3"><BadgeEstado color={meta.color as "exito" | "alerta" | "peligro"}>{dic.common.estados.herramienta[h.estado]}</BadgeEstado></td>
                   <td className="px-4 py-3">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/admin/herramientas/${h.id}/qr`} className="rounded-lg p-2 text-tenue hover:bg-fondo hover:text-marca-azul" title="Ver/imprimir QR">
+                      <Link href={`/admin/herramientas/${h.id}/qr`} className="rounded-lg p-2 text-tenue hover:bg-fondo hover:text-marca-azul" title={dic.admin.herramientas.verImprimirQr}>
                         <QrCode className="h-4 w-4" />
                       </Link>
                       <ModalHerramienta herramienta={h} />

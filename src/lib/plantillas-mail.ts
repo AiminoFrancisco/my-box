@@ -1,9 +1,21 @@
-/** Plantillas HTML de los mails transaccionales (en español). */
+/** Plantillas HTML de los mails transaccionales (bilingües: inglés por defecto). */
+
+import type { Locale } from "@/lib/i18n/config";
+import { obtenerDiccionario } from "@/lib/i18n/diccionario";
 
 const SITE = process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000";
 
+/** Sustituye marcadores `{token}` por sus valores. */
+function interpolar(plantilla: string, valores: Record<string, string | number>) {
+  let salida = plantilla;
+  for (const [clave, valor] of Object.entries(valores)) {
+    salida = salida.replaceAll(`{${clave}}`, String(valor));
+  }
+  return salida;
+}
+
 /** Envoltura con estilo de marca. */
-function envoltura(titulo: string, cuerpo: string, cta?: { texto: string; href: string }) {
+function envoltura(titulo: string, cuerpo: string, footer: string, cta?: { texto: string; href: string }) {
   return `
   <div style="font-family:Inter,Arial,sans-serif;background:#F6F8FB;padding:32px">
     <div style="max-width:520px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 30px -12px rgba(11,42,74,.18)">
@@ -20,58 +32,79 @@ function envoltura(titulo: string, cuerpo: string, cta?: { texto: string; href: 
         }
       </div>
       <div style="padding:16px 32px;border-top:1px solid #E2E8F0;color:#94A3B8;font-size:12px">
-        My Borrow Box · Sahuarita, Arizona
+        ${footer}
       </div>
     </div>
   </div>`;
 }
 
-export function mailComprobanteAprobado(nombre: string) {
+export function mailComprobanteAprobado(nombre: string, locale: Locale = "en") {
+  const t = obtenerDiccionario(locale).emails;
+  const s = t.comprobanteAprobado;
   return {
-    asunto: "¡Tu membresía está activa! 🎉",
+    asunto: s.asunto,
     html: envoltura(
-      `¡Bienvenido, ${nombre}!`,
-      `Aprobamos tu comprobante de pago y tu membresía de My Borrow Box ya está <strong>activa</strong>.
-       <br/><br/>Ya puedes ver el código de acceso a la bodega y empezar a sacar herramientas escaneando su QR.`,
-      { texto: "Entrar a mi panel", href: `${SITE}/panel` }
+      interpolar(s.titulo, { nombre }),
+      s.cuerpo,
+      t.footer,
+      { texto: s.cta, href: `${SITE}/panel` }
     ),
   };
 }
 
-export function mailComprobanteRechazado(nombre: string, nota?: string) {
+export function mailComprobanteRechazado(nombre: string, nota?: string, locale: Locale = "en") {
+  const t = obtenerDiccionario(locale).emails;
+  const s = t.comprobanteRechazado;
+  const cuerpo =
+    s.cuerpoBase +
+    (nota ? interpolar(s.motivo, { nota }) : "") +
+    s.cuerpoCola;
   return {
-    asunto: "Sobre tu comprobante de pago",
+    asunto: s.asunto,
     html: envoltura(
-      `Hola, ${nombre}`,
-      `Revisamos tu comprobante y no pudimos aprobarlo todavía.
-       ${nota ? `<br/><br/><strong>Motivo:</strong> ${nota}` : ""}
-       <br/><br/>Sube de nuevo tu comprobante desde tu cuenta y lo revisamos enseguida.`,
-      { texto: "Subir comprobante", href: `${SITE}/membresia` }
+      interpolar(s.titulo, { nombre }),
+      cuerpo,
+      t.footer,
+      { texto: s.cta, href: `${SITE}/membresia` }
     ),
   };
 }
 
-export function mailRecordatorioVencimiento(nombre: string, herramienta: string, horas: number) {
+export function mailRecordatorioVencimiento(
+  nombre: string,
+  herramienta: string,
+  horas: number,
+  locale: Locale = "en"
+) {
+  const t = obtenerDiccionario(locale).emails;
+  const s = t.recordatorio;
   return {
-    asunto: `Recordatorio: devuelve "${herramienta}" pronto`,
+    asunto: interpolar(s.asunto, { herramienta }),
     html: envoltura(
-      `Hola, ${nombre}`,
-      `Tu préstamo de <strong>${herramienta}</strong> vence en aproximadamente <strong>${horas} horas</strong>.
-       <br/><br/>Devuélvela a tiempo para no generar cargos por retraso ($5/día).`,
-      { texto: "Ver mis préstamos", href: `${SITE}/mis-prestamos` }
+      interpolar(s.titulo, { nombre }),
+      interpolar(s.cuerpo, { herramienta, horas }),
+      t.footer,
+      { texto: s.cta, href: `${SITE}/mis-prestamos` }
     ),
   };
 }
 
-export function mailAvisoRetraso(nombre: string, herramienta: string, dias: number, cargo: number) {
+export function mailAvisoRetraso(
+  nombre: string,
+  herramienta: string,
+  dias: number,
+  cargo: number,
+  locale: Locale = "en"
+) {
+  const t = obtenerDiccionario(locale).emails;
+  const s = t.retraso;
   return {
-    asunto: `Tu préstamo de "${herramienta}" está vencido`,
+    asunto: interpolar(s.asunto, { herramienta }),
     html: envoltura(
-      `Hola, ${nombre}`,
-      `Tu préstamo de <strong>${herramienta}</strong> está vencido por <strong>${dias} día(s)</strong>.
-       Se generó un cargo de <strong>$${cargo.toFixed(2)}</strong>.
-       <br/><br/>Por favor devuélvela cuanto antes para evitar cargos adicionales.`,
-      { texto: "Ver mis préstamos", href: `${SITE}/mis-prestamos` }
+      interpolar(s.titulo, { nombre }),
+      interpolar(s.cuerpo, { herramienta, dias, cargo: cargo.toFixed(2) }),
+      t.footer,
+      { texto: s.cta, href: `${SITE}/mis-prestamos` }
     ),
   };
 }

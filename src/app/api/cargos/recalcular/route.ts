@@ -23,7 +23,7 @@ async function manejar(request: NextRequest) {
     const auth = request.headers.get("authorization");
     const qs = new URL(request.url).searchParams.get("secret");
     if (auth !== `Bearer ${secreto}` && qs !== secreto) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
   }
 
@@ -52,8 +52,8 @@ async function manejar(request: NextRequest) {
 
   for (const p of (prestamos ?? []) as any[]) {
     const email = p.perfiles?.email;
-    const nombre = p.perfiles?.nombre_completo?.split(" ")[0] ?? "miembro";
-    const herr = p.herramientas?.nombre ?? "tu herramienta";
+    const nombre = p.perfiles?.nombre_completo?.split(" ")[0] ?? "member";
+    const herr = p.herramientas?.nombre ?? "your tool";
     if (!email) continue;
 
     const msRestante = new Date(p.fecha_limite).getTime() - ahora;

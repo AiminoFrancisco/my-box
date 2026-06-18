@@ -4,8 +4,10 @@ import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { Save, Loader2, CheckCircle2, Building2, CreditCard, DoorOpen } from "lucide-react";
 import { guardarConfiguracion } from "@/app/(admin)/acciones";
+import { useDic } from "@/lib/i18n/cliente";
 
 export function FormConfiguracion({ valores }: { valores: Record<string, string> }) {
+  const dic = useDic();
   const router = useRouter();
   const [pendiente, startTransition] = useTransition();
   const [ok, setOk] = useState(false);
@@ -22,30 +24,30 @@ export function FormConfiguracion({ valores }: { valores: Record<string, string>
 
   return (
     <form onSubmit={enviar} className="space-y-6">
-      <Grupo titulo="Datos bancarios para el pago" Icono={Building2}>
-        <Campo etiqueta="Banco" name="banco_nombre" defaultValue={valores.banco_nombre} />
-        <Campo etiqueta="Routing number" name="banco_routing" defaultValue={valores.banco_routing} />
-        <Campo etiqueta="Número de cuenta" name="banco_cuenta" defaultValue={valores.banco_cuenta} />
-        <Campo etiqueta="Zelle / email" name="zelle_email" defaultValue={valores.zelle_email} />
+      <Grupo titulo={dic.admin.config.grupoBancarios} Icono={Building2}>
+        <Campo etiqueta={dic.admin.config.banco} name="banco_nombre" defaultValue={valores.banco_nombre} />
+        <Campo etiqueta={dic.admin.config.routing} name="banco_routing" defaultValue={valores.banco_routing} />
+        <Campo etiqueta={dic.admin.config.cuenta} name="banco_cuenta" defaultValue={valores.banco_cuenta} />
+        <Campo etiqueta={dic.admin.config.zelleEmail} name="zelle_email" defaultValue={valores.zelle_email} />
       </Grupo>
 
-      <Grupo titulo="Membresía y préstamos" Icono={CreditCard}>
-        <Campo etiqueta="Monto de membresía ($)" name="monto_membresia" type="number" step="0.01" defaultValue={valores.monto_membresia} />
-        <Campo etiqueta="Horas de préstamo" name="horas_prestamo" type="number" defaultValue={valores.horas_prestamo} />
-        <Campo etiqueta="Máx. herramientas por miembro" name="max_herramientas" type="number" defaultValue={valores.max_herramientas} />
-        <Campo etiqueta="Penalidad diaria ($)" name="penalidad_diaria" type="number" step="0.01" defaultValue={valores.penalidad_diaria} />
-        <Campo etiqueta="Días máx. antes de cobrar reemplazo" name="dias_penalidad_max" type="number" defaultValue={valores.dias_penalidad_max} />
+      <Grupo titulo={dic.admin.config.grupoMembresia} Icono={CreditCard}>
+        <Campo etiqueta={dic.admin.config.montoMembresia} name="monto_membresia" type="number" step="0.01" defaultValue={valores.monto_membresia} />
+        <Campo etiqueta={dic.admin.config.horasPrestamo} name="horas_prestamo" type="number" defaultValue={valores.horas_prestamo} />
+        <Campo etiqueta={dic.admin.config.maxHerramientas} name="max_herramientas" type="number" defaultValue={valores.max_herramientas} />
+        <Campo etiqueta={dic.admin.config.penalidadDiaria} name="penalidad_diaria" type="number" step="0.01" defaultValue={valores.penalidad_diaria} />
+        <Campo etiqueta={dic.admin.config.diasPenalidadMax} name="dias_penalidad_max" type="number" defaultValue={valores.dias_penalidad_max} />
       </Grupo>
 
-      <Grupo titulo="Acceso a la bodega" Icono={DoorOpen}>
-        <Campo etiqueta="Código del candado" name="codigo_puerta" defaultValue={valores.codigo_puerta} />
+      <Grupo titulo={dic.admin.config.grupoAcceso} Icono={DoorOpen}>
+        <Campo etiqueta={dic.admin.config.codigoCandado} name="codigo_puerta" defaultValue={valores.codigo_puerta} />
       </Grupo>
 
       <div className="flex items-center gap-3">
         <button type="submit" disabled={pendiente} className="inline-flex items-center gap-2 rounded-full bg-gradiente-cta px-6 py-3 font-semibold text-marca-marino shadow-suave transition-all hover:shadow-glow disabled:opacity-50">
-          {pendiente ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />} Guardar cambios
+          {pendiente ? <Loader2 className="h-5 w-5 animate-spin" /> : <Save className="h-5 w-5" />} {dic.admin.config.guardarCambios}
         </button>
-        {ok && <span className="inline-flex items-center gap-1 text-sm text-exito"><CheckCircle2 className="h-4 w-4" /> Guardado</span>}
+        {ok && <span className="inline-flex items-center gap-1 text-sm text-exito"><CheckCircle2 className="h-4 w-4" /> {dic.admin.config.guardado}</span>}
       </div>
     </form>
   );

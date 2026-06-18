@@ -3,20 +3,22 @@
 import { redirect } from "next/navigation";
 import { crearClienteServidor } from "@/lib/supabase/server";
 import { crearClienteAdmin } from "@/lib/supabase/admin";
+import { obtenerDic } from "@/lib/i18n/servidor";
 
 export type EstadoForm = { error?: string };
 
 /** Inicia sesión y redirige según rol/estado. */
 export async function iniciarSesion(_prev: EstadoForm, formData: FormData): Promise<EstadoForm> {
+  const dic = obtenerDic();
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
   const redirigir = String(formData.get("redirigir") ?? "");
 
-  if (!email || !password) return { error: "Completa tu correo y contraseña." };
+  if (!email || !password) return { error: dic.auth.errores.completaCredenciales };
 
   const supabase = crearClienteServidor();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) return { error: "Correo o contraseña incorrectos." };
+  if (error) return { error: dic.auth.errores.credencialesIncorrectas };
 
   // Decide destino por rol.
   const {
@@ -37,14 +39,15 @@ export async function iniciarSesion(_prev: EstadoForm, formData: FormData): Prom
 
 /** Login exclusivo de administradores. Si la cuenta no es admin, la rechaza. */
 export async function iniciarSesionAdmin(_prev: EstadoForm, formData: FormData): Promise<EstadoForm> {
+  const dic = obtenerDic();
   const email = String(formData.get("email") ?? "").trim();
   const password = String(formData.get("password") ?? "");
 
-  if (!email || !password) return { error: "Completa tu correo y contraseña." };
+  if (!email || !password) return { error: dic.auth.errores.completaCredenciales };
 
   const supabase = crearClienteServidor();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
-  if (error) return { error: "Correo o contraseña incorrectos." };
+  if (error) return { error: dic.auth.errores.credencialesIncorrectas };
 
   // Verifica rol; si no es admin, cierra sesión y rechaza.
   const {
@@ -53,7 +56,7 @@ export async function iniciarSesionAdmin(_prev: EstadoForm, formData: FormData):
   const { data: perfil } = await supabase.from("perfiles").select("rol").eq("id", user?.id ?? "").single();
   if (perfil?.rol !== "admin") {
     await supabase.auth.signOut();
-    return { error: "Esta cuenta no es de administrador. Usa el acceso de miembros." };
+    return { error: dic.auth.errores.noEsAdmin };
   }
 
   redirect("/admin");
@@ -61,6 +64,7 @@ export async function iniciarSesionAdmin(_prev: EstadoForm, formData: FormData):
 
 /** Registra un nuevo miembro: crea cuenta, sube IDs y lo deja logueado. */
 export async function registrarse(_prev: EstadoForm, formData: FormData): Promise<EstadoForm> {
+  const dic = obtenerDic();
   const nombre_completo = String(formData.get("nombre_completo") ?? "").trim();
   const direccion = String(formData.get("direccion") ?? "").trim();
   const telefono = String(formData.get("telefono") ?? "").trim();
@@ -74,14 +78,14 @@ export async function registrarse(_prev: EstadoForm, formData: FormData): Promis
 
   // Validaciones
   if (!nombre_completo || !direccion || !telefono || !email || !password) {
-    return { error: "Faltan datos obligatorios del titular." };
+    return { error: dic.auth.errores.faltanDatosTitular };
   }
-  if (password.length < 8) return { error: "La contraseña debe tener al menos 8 caracteres." };
-  if (!fecha_nacimiento) return { error: "Indica tu fecha de nacimiento." };
-  if (!persona_autorizada_nombre) return { error: "Indica el nombre de la persona autorizada." };
-  if (!acepto) return { error: "Debes aceptar el contrato de membresía para continuar." };
-  if (!idTitular || idTitular.size === 0) return { error: "Sube la foto de la identificación del titular." };
-  if (!idAutorizada || idAutorizada.size === 0) return { error: "Sube la foto de la identificación de la persona autorizada." };
+  if (password.length < 8) return { error: dic.auth.errores.passwordCorta };
+  if (!fecha_nacimiento) return { error: dic.auth.errores.indicaFechaNacimiento };
+  if (!persona_autorizada_nombre) return { error: dic.auth.errores.indicaPersonaAutorizada };
+  if (!acepto) return { error: dic.auth.errores.debesAceptarContrato };
+  if (!idTitular || idTitular.size === 0) return { error: dic.auth.errores.subeIdTitular };
+  if (!idAutorizada || idAutorizada.size === 0) return { error: dic.auth.errores.subeIdAutorizada };
 
   const admin = crearClienteAdmin();
 
@@ -95,9 +99,9 @@ export async function registrarse(_prev: EstadoForm, formData: FormData): Promis
 
   if (errCrear || !creado?.user) {
     if (/already|registered|exists/i.test(errCrear?.message ?? "")) {
-      return { error: "Ya existe una cuenta con ese correo. Inicia sesión." };
+      return { error: dic.auth.errores.cuentaYaExiste };
     }
-    return { error: "No se pudo crear la cuenta. Intenta de nuevo." };
+    return { error: dic.auth.errores.noSePudoCrear };
   }
 
   const userId = creado.user.id;
@@ -132,7 +136,7 @@ export async function registrarse(_prev: EstadoForm, formData: FormData): Promis
     await subirID(idTitular, "titular");
     await subirID(idAutorizada, "autorizada");
   } catch {
-    return { error: "La cuenta se creó pero falló la subida de identificaciones. Súbelas desde tu perfil." };
+    return { error: dic.auth.errores.falloSubidaIds };
   }
 
   // 4) Iniciar sesión con cookies (deja al usuario logueado).

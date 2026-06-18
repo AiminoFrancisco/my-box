@@ -1,6 +1,9 @@
 import { FormLoginAdmin } from "@/components/auth/FormLoginAdmin";
+import { obtenerDic } from "@/lib/i18n/servidor";
 
-export const metadata = { title: "Acceso admin · My Borrow Box" };
+export function generateMetadata() {
+  return { title: obtenerDic().auth.adminLogin.meta };
+}
 
 export default function AdminLoginPage() {
   return <FormLoginAdmin />;

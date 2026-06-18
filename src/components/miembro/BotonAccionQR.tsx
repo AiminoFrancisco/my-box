@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { PackageMinus, PackagePlus, Check, X, Loader2 } from "lucide-react";
 import { sacarHerramienta, devolverHerramienta } from "@/app/(miembro)/acciones";
 import { cn } from "@/lib/utils";
+import { useDic } from "@/lib/i18n/cliente";
 
 /** Botón que saca o devuelve una herramienta por su token, con feedback inline. */
 export function BotonAccionQR({
@@ -18,6 +19,7 @@ export function BotonAccionQR({
   deshabilitado?: boolean;
   className?: string;
 }) {
+  const dic = useDic();
   const router = useRouter();
   const [pendiente, startTransition] = useTransition();
   const [estado, setEstado] = useState<"idle" | "ok" | "error">("idle");
@@ -30,11 +32,11 @@ export function BotonAccionQR({
       const r = await fn(token);
       if (r.ok) {
         setEstado("ok");
-        setMsg(r.mensaje ?? "Listo");
+        setMsg(r.mensaje ?? dic.member.botonQR.listo);
         router.refresh();
       } else {
         setEstado("error");
-        setMsg(r.error ?? "Error");
+        setMsg(r.error ?? dic.member.botonQR.error);
       }
     });
   }
@@ -59,7 +61,7 @@ export function BotonAccionQR({
         ) : (
           <PackagePlus className="h-4 w-4" />
         )}
-        {esSacar ? "Sacar" : "Devolver"}
+        {esSacar ? dic.member.botonQR.sacar : dic.member.botonQR.devolver}
       </button>
       {estado !== "idle" && (
         <span className={cn("flex items-center gap-1 text-xs", estado === "ok" ? "text-exito" : "text-peligro")}>

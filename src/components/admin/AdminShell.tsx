@@ -8,19 +8,8 @@ import {
   BarChart3, Megaphone, Settings, LogOut, Menu, X, ExternalLink, BookOpen,
 } from "lucide-react";
 import { cerrarSesion } from "@/app/(auth)/acciones";
+import { useDic } from "@/lib/i18n/cliente";
 import { cn } from "@/lib/utils";
-
-const ENLACES = [
-  { href: "/admin", texto: "Dashboard", Icono: LayoutDashboard },
-  { href: "/admin/comprobantes", texto: "Comprobantes", Icono: Receipt },
-  { href: "/admin/miembros", texto: "Miembros", Icono: Users },
-  { href: "/admin/herramientas", texto: "Herramientas", Icono: Boxes },
-  { href: "/admin/pagos", texto: "Pagos", Icono: DollarSign },
-  { href: "/admin/reportes", texto: "Reportes", Icono: BarChart3 },
-  { href: "/admin/anunciantes", texto: "Anunciantes", Icono: Megaphone },
-  { href: "/admin/configuracion", texto: "Configuración", Icono: Settings },
-  { href: "/admin/manual", texto: "Manual", Icono: BookOpen },
-];
 
 export function AdminShell({
   nombre,
@@ -31,8 +20,21 @@ export function AdminShell({
   comprobantesPendientes: number;
   children: React.ReactNode;
 }) {
+  const dic = useDic();
   const pathname = usePathname();
   const [abierto, setAbierto] = useState(false);
+
+  const ENLACES = [
+    { href: "/admin", texto: dic.admin.shell.nav.dashboard, Icono: LayoutDashboard },
+    { href: "/admin/comprobantes", texto: dic.admin.shell.nav.comprobantes, Icono: Receipt },
+    { href: "/admin/miembros", texto: dic.admin.shell.nav.miembros, Icono: Users },
+    { href: "/admin/herramientas", texto: dic.admin.shell.nav.herramientas, Icono: Boxes },
+    { href: "/admin/pagos", texto: dic.admin.shell.nav.pagos, Icono: DollarSign },
+    { href: "/admin/reportes", texto: dic.admin.shell.nav.reportes, Icono: BarChart3 },
+    { href: "/admin/anunciantes", texto: dic.admin.shell.nav.anunciantes, Icono: Megaphone },
+    { href: "/admin/configuracion", texto: dic.admin.shell.nav.configuracion, Icono: Settings },
+    { href: "/admin/manual", texto: dic.admin.shell.nav.manual, Icono: BookOpen },
+  ];
 
   const Nav = ({ enCajon = false }: { enCajon?: boolean }) => (
     <nav className="space-y-1">
@@ -75,11 +77,11 @@ export function AdminShell({
         <Nav />
         <div className="mt-auto space-y-1 pt-4">
           <Link href="/" target="_blank" className="flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-white/70 hover:bg-white/5 hover:text-white">
-            <ExternalLink className="h-5 w-5" /> Ver sitio público
+            <ExternalLink className="h-5 w-5" /> {dic.admin.shell.verSitio}
           </Link>
           <form action={cerrarSesion}>
             <button className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-white/70 hover:bg-white/5 hover:text-peligro">
-              <LogOut className="h-5 w-5" /> Cerrar sesión
+              <LogOut className="h-5 w-5" /> {dic.admin.shell.cerrarSesion}
             </button>
           </form>
         </div>
@@ -88,7 +90,7 @@ export function AdminShell({
       {/* Topbar móvil */}
       <header className="sticky top-0 z-40 flex items-center justify-between border-b border-borde bg-marca-marino px-4 py-3 lg:hidden">
         <Link href="/admin" className="flex items-center gap-2 font-display font-extrabold text-white">
-          <Wrench className="h-5 w-5" /> Admin
+          <Wrench className="h-5 w-5" /> {dic.admin.shell.adminCorto}
         </Link>
         <button onClick={() => setAbierto(true)} className="text-white">
           <Menu className="h-6 w-6" />
@@ -109,7 +111,7 @@ export function AdminShell({
             <Nav enCajon />
             <form action={cerrarSesion} className="mt-4">
               <button className="flex w-full items-center gap-3 rounded-xl px-3.5 py-2.5 text-sm font-medium text-white/70 hover:text-peligro">
-                <LogOut className="h-5 w-5" /> Cerrar sesión
+                <LogOut className="h-5 w-5" /> {dic.admin.shell.cerrarSesion}
               </button>
             </form>
           </div>
@@ -119,7 +121,7 @@ export function AdminShell({
       {/* Contenido */}
       <div className="flex-1">
         <div className="hidden items-center justify-between border-b border-borde bg-superficie px-8 py-4 lg:flex">
-          <p className="text-sm text-tenue">Panel administrativo</p>
+          <p className="text-sm text-tenue">{dic.admin.shell.panel}</p>
           <p className="text-sm font-medium text-marca-marino">{nombre}</p>
         </div>
         <main className="p-4 sm:p-6 lg:p-8">{children}</main>
