@@ -5,7 +5,16 @@ import {
 import { cn } from "@/lib/utils";
 
 // Ícono según categoría (para el placeholder cuando no hay foto).
+// Tolerante a inglés y español por si alguna fila no está traducida.
 const ICONO_CATEGORIA: Record<string, LucideIcon> = {
+  Construction: Hammer,
+  "Power tools": Drill,
+  "Lawn & Garden": Sprout,
+  Automotive: Car,
+  "Hand tools": Wrench,
+  Cleaning: SprayCan,
+  Measuring: Ruler,
+  // Alias en español (datos antiguos).
   Construcción: Hammer,
   Eléctrica: Drill,
   Jardinería: Sprout,
